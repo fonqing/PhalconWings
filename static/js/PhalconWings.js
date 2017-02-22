@@ -1,17 +1,38 @@
 ;(function($){
-    if(typeof($.fn.artDialog)=='undefined'){
-        alert('PhalconWings require "artDialog(4.1.7) & artDialog iframeTools" Project!');
-        return false;
+    /**
+     * Check component requirements
+     */
+    if( 'undefined' == typeof($) ){
+        alert('PhalconWings require "jQuery (1.8 +)"');
+        return;
     }
+    if( typeof($.fn.artDialog)=='undefined'){
+        alert('PhalconWings require "artDialog(4.1.7) & artDialog iframeTools" Project!');
+        return;
+    }
+    /**
+     * PhalconWings Javascript Helper
+     */
     var PhalconWings = {
         'version'   : '1.0.0',
         'author'    : 'Eric Won <wyl@sindinfo.com>',
-		'copyright' : 'SindSmart co.,Ltd 2017'
+        'copyright' : 'SindSmart co.,Ltd 2017'
     };
+
+    /**
+     * To be removed
+     */
     PhalconWings.previewImage = function(url , id){
         $('#'+id+'_pic').attr('src',url);
         $('#'+id).val(url);
     };
+
+    /**
+     * Show message layer on DOM
+     *
+     * @param {String} msg (The message to show)
+     * @param {String} url (Redirect url)
+     */
     PhalconWings.showMessage = function(msg, url){
         art.dialog.tips(msg);
         setTimeout(function(){
@@ -22,6 +43,14 @@
             }
         }, 1600);
     };
+
+    /**
+     * Send post request by AJAX
+     *
+     * @param {Object} o     (the virtual submit button Element object)
+     * @param {String} msg   (Process success messge)
+     * @param {String} link  (Process success forward address)
+     */
     PhalconWings.doPost = function(o, msg, link){
         var form = $(o).closest('form');
         var url  = form.attr('action');
@@ -31,6 +60,12 @@
                 art.dialog.alert(response.msg);
         }, 'json');
     };
+
+    /**
+     * Highlight the table style by javascript
+     *
+     * In modern browsers is not necessary,you can use CSS3 :hover
+     */
     PhalconWings.renderDataGrid = function()
     {
         $('.datatable .tb:odd').addClass('odd');
@@ -40,6 +75,10 @@
             $(this).removeClass('on');
         });
     };
+
+    /**
+     * Auto registe event to operating object
+     */
     PhalconWings.fetchActions = function()
     {
         $('a[role="pw_checkall"]').click(function(){
@@ -70,9 +109,20 @@
             });
         });
     };
+
+    /**
+     * Inject the PhalconWings namespace to window object
+     */
     window.PhalconWings = PhalconWings;
+
+    /**
+     * Auto execute
+     */
     $(document).ready(function(){
+        //Auto render table styles
         PhalconWings.renderDataGrid();
+        //Auto fetch operations
         PhalconWings.fetchActions();
     });
+
 })(jQuery);
