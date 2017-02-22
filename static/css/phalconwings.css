@@ -26,7 +26,7 @@ a:hover{color:#00a4ac;text-decoration:none;cursor:pointer;}
 .formtable .th td { background-color:#f7f7f7;color:#555;font-size:14px;font-weight:bold;border-bottom:1px solid #ddd;}
 .formtable .tb td { background-color:#fff;border-bottom:1px solid #ddd;}
 
-.label { text-align:right;width:80px;color:#555;}
+.label { text-align:right;width:90px;color:#555;}
 .btit { background-color:#eee;text-align:center;color:#888;padding:8px;margin:0 10px 10px 0;}
 .ipt { border:1px solid #ccc;background-color:#fff;padding:4px;box-shadow:inset 2px 2px 8px #eee;font-family:'Verdana','宋体';resize:none;}
 .ipt:focus { border:1px solid rgb(59,181,242);box-shadow:inset 2px 2px 8px #c8edff;outline:none;}
@@ -45,7 +45,7 @@ a.sbtn:hover,a.sbtn:focus { color:#fff;}
 a.ssbtn:hover { color:#fff;}
 
 .green {border-color: #4cae4c;background-color: #5cb85c;background-image: -moz-linear-gradient(top,#5cb85c 0,#5cb85c 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#5cb85c),to(#5cb85c));background-image: -webkit-linear-gradient(top,#5cb85c 0,#5cb85c 100%);background-image: -o-linear-gradient(top,#5cb85c 0,#5cb85c 100%);background-image: linear-gradient(to bottom,#5cb85c 0,#5cb85c 100%);}
-.blue {border-color: #179386;background-color: #1AA094;background-image: -moz-linear-gradient(top,#1AA094 0,#1AA094 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#1AA094),to(#1AA094));background-image: -webkit-linear-gradient(top,#1AA094 0,#1AA094 100%);background-image: -o-linear-gradient(top,#1AA094 0,#1AA094 100%);background-image: linear-gradient(to bottom,#1AA094 0,#1AA094 100%);}
+.blue {border-color: #2e6da4;background-color: #337ab7;background-image: -moz-linear-gradient(top,#337ab7 0,#337ab7 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#337ab7),to(#337ab7));background-image: -webkit-linear-gradient(top,#337ab7 0,#337ab7 100%);background-image: -o-linear-gradient(top,#337ab7 0,#337ab7 100%);background-image: linear-gradient(to bottom,#337ab7 0,#337ab7 100%);}
 .gray {border-color: #aaa;background-color: #aaa;background-image: -moz-linear-gradient(top,#aaa 0,#aaa 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#aaa),to(#aaa));background-image: -webkit-linear-gradient(top,#aaa 0,#aaa 100%);background-image: -o-linear-gradient(top,#aaa 0,#aaa 100%);background-image: linear-gradient(to bottom,#aaa 0,#aaa 100%);}
 .red {border-color: #c43100;background-color: #cc3300;background-image: -moz-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#cc3300),to(#cc3300));background-image: -webkit-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: -o-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: linear-gradient(to bottom,#cc3300 0,#cc3300 100%);}
 

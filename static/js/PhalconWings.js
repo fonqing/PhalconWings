@@ -14,9 +14,8 @@
      * PhalconWings Javascript Helper
      */
     var PhalconWings = {
-        'version'   : '1.0.0',
-        'author'    : 'Eric Won <wyl@sindinfo.com>',
-        'copyright' : 'SindSmart co.,Ltd 2017'
+        'version'   : '0.9.0',
+        'author'    : 'Eric Won <fonqing@gmail.com>'
     };
 
     /**
@@ -32,6 +31,7 @@
      *
      * @param {String} msg (The message to show)
      * @param {String} url (Redirect url)
+     * @return void
      */
     PhalconWings.showMessage = function(msg, url){
         art.dialog.tips(msg);
@@ -50,6 +50,7 @@
      * @param {Object} o     (the virtual submit button Element object)
      * @param {String} msg   (Process success messge)
      * @param {String} link  (Process success forward address)
+     * @return void
      */
     PhalconWings.doPost = function(o, msg, link){
         var form = $(o).closest('form');
@@ -65,6 +66,8 @@
      * Highlight the table style by javascript
      *
      * In modern browsers is not necessary,you can use CSS3 :hover
+     *
+     * @return void
      */
     PhalconWings.renderDataGrid = function()
     {
