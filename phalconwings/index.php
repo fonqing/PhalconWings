@@ -32,8 +32,11 @@ class PhalconWings
      */
     private $config    = [];
 
-    public $table      = '';
-    private $language  = 'zh-cn';
+    /**
+     *@var string $table Current working table
+     */
+    private $table      = '';
+
     /**
      *@var array $tableinfo Table infomation
      */
@@ -43,9 +46,14 @@ class PhalconWings
      *@var object $connection 
      */
     private $connection = null;
+
     /**
      * Constructor
      * Initilize Envriment
+     *
+     * @access public
+     * @param array $config
+     * @return boolean
      */
     public function __construct(array $config)
     {
@@ -57,28 +65,49 @@ class PhalconWings
         foreach((array) $config['dir'] as $name => $dir){
             if( 0 == $this->isWriteable($dir) ){
                 throw new \Exception("目录“{$name}”没有写权限");
-                break;
+                return false;
             }
         }
+        $this->initConnection();
+        return true;
     }
 
-    public function setConnection()
+    /**
+     * Initilize the Database connection
+     *
+     * @access private
+     * @return void
+     */
+    private function initConnection()
     {
         $this->connection = new Phalcon\Db\Adapter\Pdo\Mysql([
-            'host'     => $this->config['db']['host'],
-            'username' => $this->config['db']['username'],
-            'password' => $this->config['db']['password'],
-            'dbname'   => $this->config['db']['dbname'], 
+            'host'     => $this->config['db']['host'] ,
+            'username' => $this->config['db']['username'] ,
+            'password' => $this->config['db']['password'] ,
+            'dbname'   => $this->config['db']['dbname'] , 
         ]);
         $this->connection->execute("SET NAMES '" . $this->config['db']['charset'] . "'");
     }
 
+    /**
+     * Get all tables from current database
+     *
+     * @access public
+     * @return array
+     */
     public function getTables()
     {
         $infos = $this->connection->listTables();
         return $infos;
     }
 
+    /**
+     * Set working table
+     *
+     * @access public
+     * @param string $table
+     * @return boolean
+     */
     public function setTable($table)
     {
         if(!$this->connection->tableExists($table)){
@@ -126,6 +155,12 @@ class PhalconWings
         return true;
     }
 
+    /**
+     * Generate Model code
+     *
+     * @access public
+     * @return void
+     */
     public function generateModel()
     {
         $info   = self::$tableInfo[$this->table];
@@ -209,13 +244,25 @@ class PhalconWings
         }
     }
 
+    /**
+     * Generate Controller code
+     *
+     * @access public
+     * @return void
+     */
     public function generateController()
     {
-        $code = ['<?php'];
-        $pkgs = [];
-        $code[]= 'use Phalcon\Mvc\Model;';
+        //TODO
+        $code  = '<?php'."\r\n";
+        $code .= 'use Phalcon\Mvc\Model;'."\r\n";
     }
-
+    
+    /**
+     * Generate views code
+     *
+     * @access public
+     * @return void
+     */
     public function generateViews()
     {
         $info = self::$tableInfo[$this->table];
@@ -283,31 +330,41 @@ class PhalconWings
         }
     }
 
-    public function responseJSON(array $response)
-    {
-        header('Content-Type:application/json');
-        die(json_encode($response));
-    }
-
+    /**
+     * Check a dir if readable
+     *
+     * @access private
+     * @param string $dir
+     * @return boolean
+     */
     private function isWriteable($dir)
     {
         if ($fp = fopen("$dir/pw.tmp", 'w')) {
             fclose($fp);
             unlink("$dir/pw.tmp");
-            $writeable = 1;
+            $writeable = true;
         } else {
-            $writeable = 0;
+            $writeable = false;
         }
         return $writeable;
     }
 
+    /**
+     * Camlize a string
+     *
+     * @access private
+     * @param string $str
+     * @param boolean $ucfirst
+     * @return string
+     */
     private function camlize($str, $ucfirst = true)
     {
         $str = ucwords(str_replace('_', ' ', $str));
         $str = str_replace(' ','',lcfirst($str));
         return $ucfirst ? ucfirst($str) : $str;
     }
-}
+
+}//End Class
 
 /**
  * A ugly Dispatcher ^_^
@@ -320,7 +377,6 @@ $message = '';
 try{
 
     $pw     = new PhalconWings($pwConfig);
-    $pw->setConnection();
     $tables = $pw->getTables();
     if( !empty($table) ){
         $pw->setTable($table);
