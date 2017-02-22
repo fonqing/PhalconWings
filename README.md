@@ -18,14 +18,14 @@ The main commit Coming Soon!
 - Open *Git Bash Here* on your web root directory run ```git clone https://github.com/fonqing/PhalconWings.git ./```
   (在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行 ```git clone https://github.com/fonqing/PhalconWings.git ./```)
 - Open your-web-root/phalconwings/index.php (打开phalconwings下面的index.php)
-  ```php
-    /**
-     * Please modify following line to load your configuration
-     */
+  ```PHP
+    /\*\*
+     \* Please modify following line to load your configuration
+     \*/
     $config   = new Phalcon\Config\Adapter\Php('../../app/config/config.php');
-    /**
-     * Please modify the following configuration array according to your situation
-     */
+    /\*\*
+     \* Please modify the following configuration array according to your situation
+     \*/
     $pwConfig = [
         'db' => [
             'host'     => $config->db->host,
