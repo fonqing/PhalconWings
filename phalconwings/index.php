@@ -20,20 +20,9 @@ $pwConfig = [
         'view'       => '../../app/views',
     ]
 ];
-/*
-$pwConn   = new Phalcon\Db\Adapter\Pdo\Mysql([
-    'host'     => $pwConfig['db']['host'],
-    'username' => $pwConfig['db']['username'],
-    'password' => $pwConfig['db']['password'],
-    'dbname'   => $pwConfig['db']['dbname'], 
-]);*/
-//echo '<pre>';
-//var_dump($pwConn->describeColumns('se_user'));
-//var_dump($pwConn->fetchAll('SHOW FULL COLUMNS FROM `se_user`'));
-//var_dump($pwConn->describeReferences('se_user_gids'));
-//var_dump($pwConn->describeIndexes('se_user'));
-//var_dump($pwConn->describeReferences('se_user'));
-//exit;
+/**
+ * Main class
+ */
 class PhalconWings 
 {
     /**

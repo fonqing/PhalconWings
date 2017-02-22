@@ -13,7 +13,35 @@ The main commit Coming Soon!
 * jQuery 1.8 +
 
 ### Usage (使用方法)
-- Check your development environment and install git.(检查您的开发环境与要求相匹配并安装好git版本工具)
+- Check your development environment and install git.
+  (检查您的开发环境与要求相匹配并安装好git版本工具)
 - Open *Git Bash Here* on your web root directory run ```git clone https://github.com/fonqing/PhalconWings.git ./```
-(在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行 ```git clone https://github.com/fonqing/PhalconWings.git ./```)
-- Visit PhalconWings by the browser likes ```http://path-to-your-project/phalconwings/``` (通过浏览器访问phalconwings)
+  (在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行 ```git clone https://github.com/fonqing/PhalconWings.git ./```)
+- Open your-web-root/phalconwings/index.php (打开phalconwings下面的index.php)
+  ```
+    /**
+     * Please modify following line to load your configuration
+     */
+    $config   = new Phalcon\Config\Adapter\Php('../../app/config/config.php');
+    /**
+     * Please modify the following configuration array according to your situation
+     */
+    $pwConfig = [
+        'db' => [
+            'host'     => $config->db->host,
+            'username' => $config->db->username,
+            'password' => $config->db->password,
+            'dbname'   => $config->db->dbname,
+            'tablePrefix' => 'se_',//Table prefix 
+        ],
+        'dir' => [
+            'controller' => '../../app/controllers',
+            'model'      => '../../app/models',
+            'view'       => '../../app/views',
+        ]
+    ];
+  ```
+  Configure your items and make sure the dir configuration that have write permission.
+  (根据你的具体情况修改配置，并保证dir设置对应的目录具有写权限)
+- Visit PhalconWings by the browser likes ```http://path-to-your-project/phalconwings/``` 
+  (通过浏览器访问phalconwings)
