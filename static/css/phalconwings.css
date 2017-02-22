@@ -49,6 +49,7 @@ a.ssbtn:hover { color:#fff;}
 .gray {border-color: #aaa;background-color: #aaa;background-image: -moz-linear-gradient(top,#aaa 0,#aaa 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#aaa),to(#aaa));background-image: -webkit-linear-gradient(top,#aaa 0,#aaa 100%);background-image: -o-linear-gradient(top,#aaa 0,#aaa 100%);background-image: linear-gradient(to bottom,#aaa 0,#aaa 100%);}
 .red {border-color: #c43100;background-color: #cc3300;background-image: -moz-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#cc3300),to(#cc3300));background-image: -webkit-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: -o-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: linear-gradient(to bottom,#cc3300 0,#cc3300 100%);}
 
+/*
 .pagination { margin:10px 0;font-size:12px;float:right;}
 .pagination li { float:left;background-color:#eee;margin:0 1px;line-height:30px;text-align:center;font-size:12px;border:1px solid #dddddd}
 .pagination a { display:block;width:30px;height:30px;line-height:30px;font-size:10px;color:#666;}
@@ -62,6 +63,8 @@ a.ssbtn:hover { color:#fff;}
 .pagination .ender { padding:0 5px;font-size:12px;}
 .pagination .active { background-color:#09c;color:#fff;font-weight:bold;border:1px solid #008fbf}
 .pagination .disabled { color:#ccc;}
+*/
+.pagenation a,.pagenation span { display:inline-block;padding:5px 6px;background-color:#eee;border:1px solid #ddd;color:#333;border-radius:3px;}
 
 .need { font-size:14px;color:red;font-weight:bold;margin-left:10px;}
 .notice { border:1px solid #f90;cursor:pointer;background-color:#ffc;color:#f60;font-size:12px;text-align:center;margin:0 0 10px 0;padding:3px 6px;}

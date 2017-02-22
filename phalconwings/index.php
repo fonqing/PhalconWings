@@ -20,7 +20,8 @@ $pwConfig = [
         'model'      => '../../app/models',
         'view'       => '../../app/views',
     ],
-    'volt_extension' => '.htm',
+    'volt_extension' => '.htm',//Your volt view file extension
+    'baseController' => 'Controller',//your base Controller，default value is Phalcon\Mvc\Controller
 ];
 /**
  * Main class
@@ -115,42 +116,40 @@ class PhalconWings
             return false;
         }
         $this->table = $table;
-        $infos    = $this->connection->fetchAll("SHOW FULL COLUMNS FROM `{$table}`");
-        $fields   = [];
-        $pk       = [];
-        $comment  = [];
-        $types    = [];
-        $defaults = [];
-        $length   = [];
+        $infos       = $this->connection->fetchAll("SHOW FULL COLUMNS FROM `{$table}`");
+        $fields      = [];
+        $primarykeys = [];
+
         foreach($infos as $field){
-
-            $fields[]=$field['Field'];
-            $comment[ $field['Field'] ] = $field['Comment'];
-
+            
             preg_match('/(\w+)\((\d+)\)/i', $field['Type'], $match);
+            $length = null;
+            $type   = empty($match[1]) ? $field['Type'] : $match[1];
 
-            $types[ $field['Field'] ] = empty($match[1]) ? $field['Type'] : $match[1];
             if( !empty($match[2]) ){
-                $length[$field['Field']]=$match[2];
+                $length = $match[2];
             }
-            if( $field['Extra'] == 'auto_increment' ){
-                if( $field['Key'] == 'PRI' ){
-                    $pk[]=$field['Field'];
-                }
-                continue;
+
+            if( $field['Key'] == 'PRI' ){
+                $pk[]=$field['Field'];
             }
-            $defaults[ $field['Field'] ] = $field['Default'];
+
+            $fields[$field['Field']] = [
+                'name'    => $field['Field'],
+                'type'    => $type,
+                'length'  => $length,
+                'default' => $field['Default'],
+                'key'     => $field['Key'],
+                'extra'   => $field['Extra'],
+                'comment' => $field['Comment'],
+            ];
+            //auto_increment
         }
         $model = $this->camlize( str_replace($this->config['db']['tablePrefix'], '', $table) );
-
         self::$tableInfo[$table] = [
             'modelName' => $model,
             'pk'        => $pk,
-            'allFields' => $fields,
-            'comment'   => $comment,
-            'types'     => $types,
-            'defaults'  => $defaults,
-            'length'    => $length,
+            'fields'    => $fields,
         ];
         return true;
     }
@@ -182,37 +181,36 @@ class PhalconWings
         $rules .= '    {'."\r\n";
         $rules .= '        $validator = new Validation();'."\r\n";
 
-        foreach($info['allFields'] as $field){
+        foreach($info['fields'] as $fieldname => $field){
 
             $type = '';
-            if( preg_match('/int$/i', $info['types'][$field]) ){
+            if( preg_match('/int$/i', $field['type']) ){
                 $type = 'integer';
-            }elseif( preg_match('/(text|char|datetime|date)$/i', $info['types'][$field]) ){
+            }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
                 $type = 'string';
-            }elseif( in_array($info['types'][$field], ['float', 'real', 'decimal']) ){
+            }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
                 $type = 'float';
             }
 
-            if( !isset($info['defaults'][$field]) && !in_array($field, $info['pk']) ){
-                $memo   = $info['comment'][$field];
-                $rules .= '        $validator->add(\''.$field.'\', new PresenceOf(['."\r\n";
-                $rules .= '            \'message\' => \''.$memo.'不能为空\''."\r\n";
+            if( is_null($field['default']) && !in_array($fieldname, $info['pk']) ){
+                $rules .= '        $validator->add(\''.$fieldname.'\', new PresenceOf(['."\r\n";
+                $rules .= '            \'message\' => \''.$field['comment'].'不能为空\''."\r\n";
                 $rules .= '        ]));'."\r\n";
             }
 
             $vars[] = '    /**';
             $vars[] = '     *@var '.$type;
             $vars[] = '     */';
-            $vars[] = '    protected $'.$field.';';
+            $vars[] = '    protected $'.$fieldname.';';
 
-            if(!in_array($field, $info['pk'])){
-                $seters[] = '    public function set'.$this->camlize($field).'($'.$field.')';
+            if(!in_array($fieldname, $info['pk'])){
+                $seters[] = '    public function set'.$this->camlize($fieldname).'($'.$fieldname.')';
                 $seters[] = '    {';
-                $seters[] = '        $this->'.$field.' = $'.$field.';';
+                $seters[] = '        $this->'.$fieldname.' = $'.$fieldname.';';
                 $seters[] = '    }';
-                $geters[] = '    public function get'.$this->camlize($field).'()';
+                $geters[] = '    public function get'.$this->camlize($fieldname).'()';
                 $geters[] = '    {';
-                $geters[] = '        return $this->'.$field.';';
+                $geters[] = '        return $this->'.$fieldname.';';
                 $geters[] = '    }';
             }
         }
@@ -253,8 +251,83 @@ class PhalconWings
     public function generateController()
     {
         //TODO
+        $info  = self::$tableInfo[$this->table];
+        $name  = $info['modelName'];
+        $cname = ucfirst($name);
+        $vname = strtolower($name);
+
         $code  = '<?php'."\r\n";
-        $code .= 'use Phalcon\Mvc\Model;'."\r\n";
+        $code .= 'use Phalcon\Mvc\Controller;'."\r\n";
+
+        $code .= 'class ' . $cname . 'Controller extends ' . $this->config['baseController'] . "\r\n";
+        $code .= '{'."\r\n";
+      
+        $code .= '    public function indexAction()'."\r\n";
+        $code .= '    {'."\r\n";
+        $code .= '        $page = $this->request->get(\'page\', \'int\', 1);'."\r\n";
+        $code .= '        $page = max(1, $page);'."\r\n\r\n";
+        $code .= '        $conditions = [];'."\r\n\r\n";
+        $code .= '        if ($this->request->isPost()) {'."\r\n";
+        $code .= '            //add conditions'."\r\n";
+        $code .= '        }'."\r\n";
+        $code .= '        $'.$vname.'s = '.$cname.'::find($conditions);'."\r\n";
+        $code .= '        $paginator = new Paginator(['."\r\n";
+        $code .= '            \'data\'  => $'.$vname.'s,'."\r\n";
+        $code .= '            \'limit\' => 20,'."\r\n";
+        $code .= '            \'page\'  => $page,'."\r\n";
+        $code .= '        ]);'."\r\n";
+        $code .= '        $pager = $paginator->getPaginate();'."\r\n";
+        $code .= '    }'."\r\n\r\n";
+
+        $code .= '    public function addAction()'."\r\n";
+        $code .= '    {'."\r\n";
+        $code .= '        if( $this->request->isPost() ){'."\r\n";
+        $code .= '            $'.$vname.' = new ' . $cname . '();'."\r\n";
+        
+        foreach($info['fields'] as $fieldname => $field){
+
+            if($field['extra'] == 'auto_increment'){
+                continue;
+            }
+
+            $filter = '';
+            if( preg_match('/int$/i', $field['type']) ){
+                $filter = ",'int'";
+            }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
+                $filter = ",'string'";
+            }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
+                $filter = ",'float'";
+            }elseif( preg_match('/email/i', $fieldname)){
+                $filter = ",'email'";
+            }
+            if( is_null($field['default']) ) {
+                $code .= '            $'.$vname.'->'.$fieldname.' = ';
+                $code .= '$this->request->getPost(\''.$fieldname.'\''.$filter.');'."\r\n";
+            }else{
+                $code .= '            $'.$vname.'->'.$fieldname.' = ';
+                $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$field['default'].'\''.$filter.');'."\r\n";
+            }
+            
+
+        }
+
+        $code .= '            if ($'.$vname.'->save() === false) {'."\r\n";
+        $code .= '                $messages = $'.$vname.'->getMessages();'."\r\n";
+        $code .= '                $response = [\'status\' => 0 ];'."\r\n";
+        $code .= '                foreach ($messages as $msg) {'."\r\n";
+        $code .= '                    $response[\'msg\']=$msg->getMessage();'."\r\n";
+        $code .= '                    break;'."\r\n";
+        $code .= '                }'."\r\n";
+        $code .= '                return $this->response->setJsonContent($response);'."\r\n";
+        $code .= '            } else {'."\r\n";
+        $code .= '                return $this->response->setJsonContent([ \'status\' => 1]);'."\r\n";
+        $code .= '            }'."\r\n";
+        $code .= '            $this->view->disable();'."\r\n";
+        $code .= '        }'."\r\n";
+        $code .= '    }'."\r\n\r\n";
+
+
+        $code .= '}'."\r\n";
     }
     
     /**
