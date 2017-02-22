@@ -293,7 +293,7 @@ class PhalconWings
         <td colspan="2">新增xxxx</td>
       </tr>';
       foreach($info['comment'] as $name => $label){
-          if($name=='status'){
+          if( in_array($name, ['status']) ){
               continue;
           }
           $addhtml.='
@@ -360,7 +360,7 @@ class PhalconWings
     private function camlize($str, $ucfirst = true)
     {
         $str = ucwords(str_replace('_', ' ', $str));
-        $str = str_replace(' ','',lcfirst($str));
+        $str = str_replace(' ', '', lcfirst($str));
         return $ucfirst ? ucfirst($str) : $str;
     }
 
