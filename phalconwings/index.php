@@ -20,7 +20,7 @@ $pwConfig = [
         'model'      => '../../app/models',
         'view'       => '../../app/views',
     ],
-    'volt_extision' => '.htm',
+    'volt_extension' => '.htm',
 ];
 /**
  * Main class
