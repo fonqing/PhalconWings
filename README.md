@@ -14,5 +14,6 @@ The main commit Coming Soon!
 
 ### Usage (使用方法)
 - Check your development environment and install git.(检查您的开发环境与要求相匹配并安装好git版本工具)
-- Open *Git Bash* on your web root directory run *git clone https://github.com/fonqing/PhalconWings.git ./* (在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行 *git clone https://github.com/fonqing/PhalconWings.git ./*)
-- Visit PhalconWings by the browser likes *http://path-to-your-project/phalconwings/* (通过浏览器访问phalconwings)
+- Open *Git Bash Here* on your web root directory run ```git clone https://github.com/fonqing/PhalconWings.git ./```
+(在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行 ```git clone https://github.com/fonqing/PhalconWings.git ./```)
+- Visit PhalconWings by the browser likes ```http://path-to-your-project/phalconwings/``` (通过浏览器访问phalconwings)
