@@ -19,14 +19,6 @@
     };
 
     /**
-     * To be removed
-     */
-    PhalconWings.previewImage = function(url , id){
-        $('#'+id+'_pic').attr('src',url);
-        $('#'+id).val(url);
-    };
-
-    /**
      * Show message layer on DOM
      *
      * @param {String} msg (The message to show)

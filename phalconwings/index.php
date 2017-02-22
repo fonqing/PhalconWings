@@ -265,6 +265,7 @@ class PhalconWings
      */
     public function generateViews()
     {
+        //TODO: edit view,list view
         $info = self::$tableInfo[$this->table];
         $var  = strtolower($info['modelName']);
         $addhtml   = '<!doctype html>
