@@ -630,7 +630,7 @@ $(document).ready(function(){
     var table = $('#table').val();
     var mname = $('#mname').val();
     if( table == '' ){
-      art.dialog.alert('请选择数据表！');
+      art.dialog.alert('Please select a table...');
       return;
     }
     if($('#modc').get(0).checked) $('#modcon').load('?action=model&table='+table);
