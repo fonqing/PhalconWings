@@ -563,7 +563,7 @@ try{
 <body>
 <table width="100%" cellspacing="0" cellpadding="8" border="0" class="formtable">
   <tr class="th">
-      <td colspan="2">PhalconWings(Phalcon 3.0 + MySQL 后台代码生成工具)</td>
+      <td colspan="2">PhalconWings(Phalcon 3.0.4 + MySQL Backend Code Generator)</td>
   </tr>
   <?php if(!empty($message)):?>
   <tr class="tb2">
@@ -573,9 +573,9 @@ try{
   </tr>
   <?php endif;?>
   <tr class="tb">
-    <td class="label" style="width:120px;">数据表：<br>Database table : </td>
+    <td class="label" style="width:120px;">Database table : </td>
     <td><select name="table" id="table" class="ipt">
-    <option value="">请选择数据表</option>
+    <option value="">Select a table</option>
     <?php foreach((array)$tables as $tablename):?>
     <option value="<?php echo $tablename;?>"><?php echo $tablename;?></option>
     <?php endforeach;?>
@@ -583,39 +583,39 @@ try{
     </td>
   </tr>
   <tr class="tb">
-    <td class="label">生成选项：<br>Generate items: </td>
+    <td class="label">Generate items: </td>
     <td>
-        <input type="checkbox" name="ctl" id="ctlc" /> <label for="ctlc">控制器(Controller)</label>
+        <input type="checkbox" name="ctl" id="ctlc" /> <label for="ctlc">Controller</label>
         &nbsp;&nbsp;
-        <input type="checkbox" name="mod" id="modc" /> <label for="modc">模型(Model)</label>
+        <input type="checkbox" name="mod" id="modc" /> <label for="modc">Model</label>
         &nbsp;&nbsp;
-        <input type="checkbox" name="tpl" id="tplc" /> <label for="tplc">视图(Views)</label>
+        <input type="checkbox" name="tpl" id="tplc" /> <label for="tplc">Views</label>
     </td>
   </tr>
   <tr class="tb">
-    <td class="label">模型简称：<br>Model name: </td>
+    <td class="label">Item name: </td>
     <td>
-        <input type="text" name="name" id="mname" class="ipt" />
+        <input type="text" name="name" id="mname" class="ipt" /> Add "what" in buttons,For example : Add "News" , Add "Product"
     </td>
   </tr>
   <tr class="tb">
     <td>&nbsp;</td>
-    <td><input class="sbtn blue" type="button" value=" 一键生成 " id="docreate" /></td>
+    <td><input class="sbtn blue" type="button" value=" Do Generate " id="docreate" /></td>
   </tr>
   <tr class="tb">
-    <td class="label">生成结果：<br>Generate result :</td>
+    <td class="label">Generate result :</td>
     <td>
       <table width="100%" cellpadding="5" border="0" style="border:1px solid #ccc;">
         <tr>
-          <td width="100" class="label">模型：<br>Model : </td>
+          <td width="100" class="label">Model : </td>
           <td><div id="modcon" class="ctrs">...</div></td>
         </tr>
         <tr>
-          <td class="label">控制器：<br>Controller : </td>
+          <td class="label">Controller : </td>
           <td><div id="ctlcon" class="ctrs">...</div></td>
         </tr>
         <tr class="lasttr">
-          <td class="label">视图：<br>View : </td>
+          <td class="label">View : </td>
           <td><div id="tplcon" class="ctrs">...</div></td>
         </tr>
       </table>
@@ -624,9 +624,6 @@ try{
 </table>
 <script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="/static/js/artDialog/jquery.artDialog.js?skin=default"></script>
-<!--
-<script type="text/javascript" src="/static/js/PhalconWings.js"></script>
--->
 <script type="text/javascript">
 $(document).ready(function(){
   $('#docreate').click(function(){
@@ -642,6 +639,5 @@ $(document).ready(function(){
   });
 });
 </script>
-
 </body>
 </html>
