@@ -290,22 +290,22 @@ class PhalconWings
                 continue;
             }
 
-            $filter = '';
+            $filter = 'string';
             if( preg_match('/int$/i', $field['type']) ){
-                $filter = ",'int'";
+                $filter = 'int';
             }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
-                $filter = ",'string'";
+ 
             }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
-                $filter = ",'float'";
+                $filter = 'float';
             }elseif( preg_match('/email/i', $fieldname)){
-                $filter = ",'email'";
+                $filter = 'email';
             }
             if( is_null($field['default']) ) {
                 $code .= '            $'.$vname.'->'.$fieldname.' = ';
-                $code .= '$this->request->getPost(\''.$fieldname.'\''.$filter.');'."\r\n";
+                $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\');'."\r\n";
             }else{
                 $code .= '            $'.$vname.'->'.$fieldname.' = ';
-                $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$field['default'].'\''.$filter.');'."\r\n";
+                $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\',\''.$field['default'].'\');'."\r\n";
             }
             
 
@@ -366,16 +366,16 @@ class PhalconWings
       <tr class="th">
         <td colspan="2">新增xxxx</td>
       </tr>';
-      foreach($info['comment'] as $name => $label){
+      foreach($info['fields'] as $name => $field){
           if( in_array($name, ['status']) ){
               continue;
           }
           $addhtml.='
       <tr class="tb">
-        <td class="label">'.$label.'：</td>
+        <td class="label">'.$field['comment'].'：</td>
         <td>
           <input type="text" name="'.$name.'" class="ipt" />
-          <span class="tips">'.$label.'</span>
+          <span class="tips">'.$field['comment'].'</span>
         </td>
       </tr>';
       }
