@@ -59,13 +59,13 @@ class PhalconWings
     public function __construct(array $config)
     {
         if(empty($config)){
-            throw new \Exception('配置不能为空');
+            throw new \Exception('Configuration can\'t empty');
             return false;
         }
         $this->config = $config;
         foreach((array) $config['dir'] as $name => $dir){
             if( 0 == $this->isWriteable($dir) ){
-                throw new \Exception("目录“{$name}”没有写权限");
+                throw new \Exception("Directory “{$name}” write permission required");
                 return false;
             }
         }
@@ -112,7 +112,7 @@ class PhalconWings
     public function setTable($table)
     {
         if(!$this->connection->tableExists($table)){
-            throw new \Exception("表 {$table} 不存在!");
+            throw new \Exception("Table {$table} not exists!");
             return false;
         }
         $this->table = $table;
@@ -131,7 +131,7 @@ class PhalconWings
             }
 
             if( $field['Key'] == 'PRI' ){
-                $pk[]=$field['Field'];
+                $primarykeys[]=$field['Field'];
             }
 
             $fields[$field['Field']] = [
@@ -148,7 +148,7 @@ class PhalconWings
         $model = $this->camlize( str_replace($this->config['db']['tablePrefix'], '', $table) );
         self::$tableInfo[$table] = [
             'modelName' => $model,
-            'pk'        => $pk,
+            'pk'        => $primarykeys,
             'fields'    => $fields,
         ];
         return true;
@@ -208,11 +208,11 @@ class PhalconWings
                 $seters[] = '    {';
                 $seters[] = '        $this->'.$fieldname.' = $'.$fieldname.';';
                 $seters[] = '    }';
-                $geters[] = '    public function get'.$this->camlize($fieldname).'()';
-                $geters[] = '    {';
-                $geters[] = '        return $this->'.$fieldname.';';
-                $geters[] = '    }';
             }
+            $geters[] = '    public function get'.$this->camlize($fieldname).'()';
+            $geters[] = '    {';
+            $geters[] = '        return $this->'.$fieldname.';';
+            $geters[] = '    }';
         }
         $code  .= "\r\n".implode("\r\n", $vars)."\r\n";
         $code  .= "\r\n";
@@ -339,69 +339,60 @@ class PhalconWings
     public function generateViews()
     {
         //TODO: edit view,list view
-        $info = self::$tableInfo[$this->table];
-        $var  = strtolower($info['modelName']);
-        $addhtml   = '<!doctype html>
-<html lang="en">
-<head>
-<meta name="renderer" content="webkit" />
-<meta charset="UTF-8">
-<title>新增xxxx</title>
-<link rel="stylesheet" type="text/css" href="/static/css/phlconwings.css" />
-</head>
-<body>
-<table width="100%" cellspacing="0" cellpadding="0" border="0">
-  <tr>
-    <td>
-      <div class="path">
-        <a href="{{url(\'index/index\')}}">首页</a> <span class="split">/</span>
-        <a href="{{url(\''.$var.'/index\')}}">xxxx管理</a> <span class="split">/</span>
-        <a>新增xxxx</a>
-      </div>
-    </td>
-  </tr>
-</table>
-<form action="{{url(\''.$var.'/add\')}}" onsubmit="return false;">
-    <table width="100%" cellspacing="0" cellpadding="8" border="0" class="formtable">
-      <tr class="th">
-        <td colspan="2">新增xxxx</td>
-      </tr>';
-      foreach($info['fields'] as $name => $field){
-          if( in_array($name, ['status']) ){
-              continue;
-          }
-          $addhtml.='
-      <tr class="tb">
-        <td class="label">'.$field['comment'].'：</td>
-        <td>
-          <input type="text" name="'.$name.'" class="ipt" />
-          <span class="tips">'.$field['comment'].'</span>
-        </td>
-      </tr>';
-      }
-        $addhtml.='<tr class="tb2">
-        <td>&nbsp;</td>
-        <td>
-          <a role="pw_submit" class="sbtn blue" msg="保存成功" redirect="{{url(\''.$var.'/index\')}}"> 提交保存 </a>
-        </td>
-      </tr>
-    </table>
-</form>
-<script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
-<script type="text/javascript" src="/static/js/artDialog/jquery.artDialog.js?skin=default"></script>
-<script type="text/javascript" src="/static/js/PhalconWings.js"></script>
-</body>
-</html>';
-        $file = rtrim($this->config['dir']['view'],'/\\').'/'.$var.'/add'.$this->config['volt_extension'];
-        if(file_exists($file)){
+        $info    = self::$tableInfo[$this->table];
+        $var     = strtolower($info['modelName']);
+        
+        //Generate add views
+        $addfile = rtrim($this->config['dir']['view'],'/\\').'/'.$var.'/add'.$this->config['volt_extension'];
+        if(file_exists($addfile)){
             echo '<font color="blue">新增模板已存在，请手动删除后，重新生成!</font>';
         }else{
-            if(false === file_put_contents($file, $addhtml)){
+            $addhtml   = file_get_contents('./tpl/add.tpl');
+            $addblock  = '';
+            foreach($info['fields'] as $name => $field){
+                if($field['extra'] == 'auto_increment'){
+                    continue;
+                }
+                if( in_array($name, ['status']) ){
+                    continue;
+                }
+                $addblock .= '      <tr class="tb">'."\r\n";
+                $addblock .= '        <td class="label">'.$field['comment'].'：</td>'."\r\n";
+                $addblock .= '        <td><input type="text" name="'.$name.'" class="ipt" />';
+                $addblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                $addblock .= '      </tr>'."\r\n";
+            }
+            $addhtml = str_replace(['##ctl##','##addblock##'], [$var, $addblock], $addhtml);
+            if(false === file_put_contents($addfile, $addhtml)){
                 echo '<font color="red">新增模板创建失败!</font>';
             }else{
                 echo '<font color="green">新增模板创建成功，请根据需求修改！</font>';
             }
         }
+
+        //Generate index/list views
+        $listfile = rtrim($this->config['dir']['view'],'/\\').'/'.$var.'/index'.$this->config['volt_extension'];
+        if(file_exists($addfile)){
+            echo '<font color="blue">列表模板已存在，请手动删除后，重新生成!</font>';
+        }else{
+            $listhtml = file_get_contents('./tpl/index.tpl');
+            $thblock  = '';
+            $tdblock  = '';
+            foreach($info['fields'] as $name => $field){
+                $thblock .= '<td>'.$field['comment'].'</td>'."\r\n";
+                $tdblock .= '<td>{{'.$var.'.'.$name.'}}</td>'."\r\n";
+            }
+            $colspan = count($info['fields'])+2;
+            $listhtml = str_replace(
+                ['##ctl##','##pk##', '##thblock##','##tdblock##','##colspan##'] , 
+                [$var, $info['pk'][0], $thblock, $tdblock, $colspan] , 
+                $listhtml );
+
+            if(false === file_put_contents($listfile, $listhtml)){
+                echo '<font color="red">列表模板创建失败!</font>';
+            }else{
+                echo '<font color="green">列表模板创建成功，请根据需求修改！</font>';
+            }
     }
 
     /**
