@@ -3,8 +3,8 @@
 <head>
 <meta name="renderer" content="webkit" />
 <meta charset="UTF-8">
-<title>Modify xxxx</title>
-<link rel="stylesheet" type="text/css" href="/static/css/phlconwings.css" />
+<title>Modify ##mname##</title>
+<link rel="stylesheet" type="text/css" href="/static/css/phalconwings.css" />
 </head>
 <body>
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -12,17 +12,17 @@
     <td>
       <div class="path">
         <a href="{{url('index/index')}}">Home</a> <span class="split">/</span>
-        <a href="{{url('##ctl##/index')}}">xxxx</a> <span class="split">/</span>
-        <a>Modify xxxx</a>
+        <a href="{{url('##ctl##/index')}}">##mname##</a> <span class="split">/</span>
+        <a>Modify ##mname##</a>
       </div>
     </td>
   </tr>
 </table>
 <form action="{{url('##ctl##/edit')}}" onsubmit="return false;">
-<input type="hidden" name="##pk##" value="{{'.$var.'.'.$pk.'}}" />
+<input type="hidden" name="##pk##" value="{{##ctl##.##pk##}}" />
   <table width="100%" cellspacing="0" cellpadding="8" border="0" class="formtable">
     <tr class="th">
-      <td colspan="2">Modify xxxx</td>
+      <td colspan="2">Modify ##mname##</td>
     </tr>
     ##editblock##
     <tr class="tb2">

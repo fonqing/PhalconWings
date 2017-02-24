@@ -98,8 +98,8 @@ class PhalconWings
      */
     public function getTables()
     {
-        $infos = $this->connection->listTables();
-        return $infos;
+        $tables = $this->connection->listTables();
+        return $tables;
     }
 
     /**
@@ -127,7 +127,7 @@ class PhalconWings
             $type   = empty($match[1]) ? $field['Type'] : $match[1];
 
             if( !empty($match[2]) ){
-                $length = $match[2];
+                $length = intval($match[2]);
             }
 
             if( $field['Key'] == 'PRI' ){
@@ -164,80 +164,84 @@ class PhalconWings
     {
         $info   = self::$tableInfo[$this->table];
         $model  = $info['modelName'];
-        $code   = '<?php'."\r\n";
-        $code  .= 'use Phalcon\Mvc\Model;'."\r\n";
-        $code  .= 'use Phalcon\Validation;'."\r\n";
-        $code  .= 'use Phalcon\Validation\Validator\PresenceOf;'."\r\n";
-        $code  .= 'use Phalcon\Validation\Validator\StringLength;'."\r\n";
-        $code  .= 'use Phalcon\Validation\Validator\Numericality;'."\r\n";
-        $code  .= "class {$model} extends Model\n\r";
-        $code  .= '{'."\r\n";
 
-        $vars   = [];
-        $seters = [];
-        $geters = [];
-
-        $rules  = '    public function validation()'."\r\n";
-        $rules .= '    {'."\r\n";
-        $rules .= '        $validator = new Validation();'."\r\n";
-
-        foreach($info['fields'] as $fieldname => $field){
-
-            $type = '';
-            if( preg_match('/int$/i', $field['type']) ){
-                $type = 'integer';
-            }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
-                $type = 'string';
-            }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
-                $type = 'float';
-            }
-
-            if( is_null($field['default']) && !in_array($fieldname, $info['pk']) ){
-                $rules .= '        $validator->add(\''.$fieldname.'\', new PresenceOf(['."\r\n";
-                $rules .= '            \'message\' => \''.$field['comment'].'不能为空\''."\r\n";
-                $rules .= '        ]));'."\r\n";
-            }
-
-            $vars[] = '    /**';
-            $vars[] = '     *@var '.$type;
-            $vars[] = '     */';
-            $vars[] = '    protected $'.$fieldname.';';
-
-            if(!in_array($fieldname, $info['pk'])){
-                $seters[] = '    public function set'.$this->camlize($fieldname).'($'.$fieldname.')';
-                $seters[] = '    {';
-                $seters[] = '        $this->'.$fieldname.' = $'.$fieldname.';';
-                $seters[] = '    }';
-            }
-            $geters[] = '    public function get'.$this->camlize($fieldname).'()';
-            $geters[] = '    {';
-            $geters[] = '        return $this->'.$fieldname.';';
-            $geters[] = '    }';
-        }
-        $code  .= "\r\n".implode("\r\n", $vars)."\r\n";
-        $code  .= "\r\n";
-        $code  .= implode("\r\n", $seters)."\r\n";
-        $code  .= implode("\r\n", $geters)."\r\n";
-        $code  .= "\r\n";
-        $code  .= '    public function initialize()'."\r\n";
-        $code  .= '    {'."\r\n";
-        $code  .= '        $this->setSource(\''.$this->table.'\');'."\r\n";
-        $code  .= '        $this->setup([\'notNullValidations\'=>false]);'."\r\n";
-        $code  .= '    }'."\r\n";
-        $rules .= '        return $this->validate($validator);'."\r\n";
-        $rules .= '    }'."\r\n";
-        $code  .= $rules;
-        $code  .= "\r\n}";
-        
         $file = rtrim($this->config['dir']['model'],'/\\').'/'.$model.'.php';
 
         if(file_exists($file)){
-            echo '<font color="blue">模型已存在，请手动删除后，重新生成</font>';
+
+            echo '<font color="blue">Model exists,Please delete it manually to regenerate.</font>';
+
         }else{
+
+            $code   = '<?php'."\r\n";
+            $code  .= 'use Phalcon\Mvc\Model;'."\r\n";
+            $code  .= 'use Phalcon\Validation;'."\r\n";
+            $code  .= 'use Phalcon\Validation\Validator\PresenceOf;'."\r\n";
+            $code  .= 'use Phalcon\Validation\Validator\StringLength;'."\r\n";
+            $code  .= 'use Phalcon\Validation\Validator\Numericality;'."\r\n";
+            $code  .= "class {$model} extends Model\n\r";
+            $code  .= '{'."\r\n";
+
+            $vars   = [];
+            $seters = [];
+            $geters = [];
+
+            $rules  = '    public function validation()'."\r\n";
+            $rules .= '    {'."\r\n";
+            $rules .= '        $validator = new Validation();'."\r\n";
+
+            foreach($info['fields'] as $fieldname => $field){
+
+                $type = '';
+                if( preg_match('/int$/i', $field['type']) ){
+                    $type = 'integer';
+                }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
+                    $type = 'string';
+                }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
+                    $type = 'float';
+                }
+
+                if( is_null($field['default']) && !in_array($fieldname, $info['pk']) ){
+                    $rules .= '        $validator->add(\''.$fieldname.'\', new PresenceOf(['."\r\n";
+                    $rules .= '            \'message\' => \''.$field['comment'].'不能为空\''."\r\n";
+                    $rules .= '        ]));'."\r\n";
+                }
+
+                $vars[] = '    /**';
+                $vars[] = '     *@var '.$type;
+                $vars[] = '     */';
+                $vars[] = '    protected $'.$fieldname.';';
+
+                if(!in_array($fieldname, $info['pk'])){
+                    $seters[] = '    public function set'.$this->camlize($fieldname).'($'.$fieldname.')';
+                    $seters[] = '    {';
+                    $seters[] = '        $this->'.$fieldname.' = $'.$fieldname.';';
+                    $seters[] = '    }';
+                }
+                $geters[] = '    public function get'.$this->camlize($fieldname).'()';
+                $geters[] = '    {';
+                $geters[] = '        return $this->'.$fieldname.';';
+                $geters[] = '    }';
+            }
+            $code  .= "\r\n".implode("\r\n", $vars)."\r\n";
+            $code  .= "\r\n";
+            $code  .= implode("\r\n", $seters)."\r\n";
+            $code  .= implode("\r\n", $geters)."\r\n";
+            $code  .= "\r\n";
+            $code  .= '    public function initialize()'."\r\n";
+            $code  .= '    {'."\r\n";
+            $code  .= '        $this->setSource(\''.$this->table.'\');'."\r\n";
+            $code  .= '        $this->setup([\'notNullValidations\'=>false]);'."\r\n";
+            $code  .= '    }'."\r\n";
+            $rules .= '        return $this->validate($validator);'."\r\n";
+            $rules .= '    }'."\r\n";
+            $code  .= $rules;
+            $code  .= "\r\n}";
+
             if(false === file_put_contents($file, $code)){
-                echo '<font color="red">模型生成失败</font>';
+                echo '<font color="red">Generate Model failed！</font>';
             }else{
-                echo '<font color="green">模型生成成功，请根据自己的情况修改相关逻辑</font>';
+                echo '<font color="green">Generate success!,Please modify according to your needs!</font>';
             }
         }
     }
@@ -250,102 +254,124 @@ class PhalconWings
      */
     public function generateController()
     {
-        //TODO
         $info  = self::$tableInfo[$this->table];
         $name  = $info['modelName'];
         $cname = ucfirst($name);
         $vname = strtolower($name);
 
-        $code  = '<?php'."\r\n";
-        $code .= 'use Phalcon\Mvc\Controller;'."\r\n";
+        $file = rtrim($this->config['dir']['controller'],'/\\').'/'.$cname.'Controller.php';
 
-        $code .= 'class ' . $cname . 'Controller extends ' . $this->config['baseController'] . "\r\n";
-        $code .= '{'."\r\n";
-      
-        $code .= '    public function indexAction()'."\r\n";
-        $code .= '    {'."\r\n";
-        $code .= '        $page = $this->request->get(\'page\', \'int\', 1);'."\r\n";
-        $code .= '        $page = max(1, $page);'."\r\n\r\n";
-        $code .= '        $conditions = [];'."\r\n\r\n";
-        $code .= '        if ($this->request->isPost()) {'."\r\n";
-        $code .= '            //add conditions'."\r\n";
-        $code .= '        }'."\r\n";
-        $code .= '        $'.$vname.'s = '.$cname.'::find($conditions);'."\r\n";
-        $code .= '        $paginator = new Paginator(['."\r\n";
-        $code .= '            \'data\'  => $'.$vname.'s,'."\r\n";
-        $code .= '            \'limit\' => 20,'."\r\n";
-        $code .= '            \'page\'  => $page,'."\r\n";
-        $code .= '        ]);'."\r\n";
-        $code .= '        $pager = $paginator->getPaginate();'."\r\n";
-        $code .= '    }'."\r\n\r\n";
+        if( file_exists($file) ){
 
-        $code .= '    public function addAction()'."\r\n";
-        $code .= '    {'."\r\n";
-        $code .= '        if( $this->request->isPost() ){'."\r\n";
-        $code .= '            $'.$vname.' = new ' . $cname . '();'."\r\n";
-        
-        foreach($info['fields'] as $fieldname => $field){
+            echo '<font color="blue">Controller exists,Please delete it manually to regenerate.</font>';
 
-            if($field['extra'] == 'auto_increment'){
-                continue;
-            }
+        } else {
 
-            $filter = 'string';
-            if( preg_match('/int$/i', $field['type']) ){
-                $filter = 'int';
-            }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
- 
-            }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
-                $filter = 'float';
-            }elseif( preg_match('/email/i', $fieldname)){
-                $filter = 'email';
-            }
-            if( is_null($field['default']) ) {
-                $code .= '            $'.$vname.'->'.$fieldname.' = ';
-                $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\');'."\r\n";
-            }else{
-                $code .= '            $'.$vname.'->'.$fieldname.' = ';
-                $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\',\''.$field['default'].'\');'."\r\n";
-            }
+            $code  = '<?php'."\r\n";
+            $code .= 'use Phalcon\Mvc\Controller;'."\r\n";
+            $code .= 'use Phalcon\Paginator\Adapter\Model as Paginator;'."\r\n";
+
+            $code .= 'class ' . $cname . 'Controller extends ' . $this->config['baseController'] . "\r\n";
+            $code .= '{'."\r\n";
+          
+            $code .= '    public function indexAction()'."\r\n";
+            $code .= '    {'."\r\n";
+            $code .= '        $page = $this->request->get(\'page\', \'int\', 1);'."\r\n";
+            $code .= '        $page = max(1, $page);'."\r\n\r\n";
+            $code .= '        $conditions = [];'."\r\n\r\n";
+            $code .= '        if ($this->request->isPost()) {'."\r\n";
+            $code .= '            //add conditions'."\r\n";
+            $code .= '        }'."\r\n";
+            $code .= '        $'.$vname.'s = '.$cname.'::find($conditions);'."\r\n";
+            $code .= '        $paginator = new Paginator(['."\r\n";
+            $code .= '            \'data\'  => $'.$vname.'s,'."\r\n";
+            $code .= '            \'limit\' => 20,'."\r\n";
+            $code .= '            \'page\'  => $page,'."\r\n";
+            $code .= '        ]);'."\r\n";
+            $code .= '        $pager = $paginator->getPaginate();'."\r\n";
+            $code .= '        $this->view->pager = $pager;'."\r\n";
+            $code .= '    }'."\r\n\r\n";
+
+            $code .= '    public function addAction()'."\r\n";
+            $code .= '    {'."\r\n";
+            $code .= '        if( $this->request->isPost() ){'."\r\n";
+            $code .= '            $'.$vname.' = new ' . $cname . '();'."\r\n";
             
+            foreach($info['fields'] as $fieldname => $field){
 
+                if($field['extra'] == 'auto_increment'){
+                    continue;
+                }
+
+                $filter = 'string';
+                if( preg_match('/int$/i', $field['type']) ){
+                    $filter = 'int';
+                }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
+     
+                }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
+                    $filter = 'float';
+                }elseif( preg_match('/email/i', $fieldname)){
+                    $filter = 'email';
+                }
+                if( is_null($field['default']) ) {
+                    $code .= '            $'.$vname.'->'.$fieldname.' = ';
+                    $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\');'."\r\n";
+                }else{
+                    $code .= '            $'.$vname.'->'.$fieldname.' = ';
+                    $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\',\''.$field['default'].'\');'."\r\n";
+                }
+                
+
+            }
+
+            $code .= '            if ($'.$vname.'->save() === false) {'."\r\n";
+            $code .= '                $messages = $'.$vname.'->getMessages();'."\r\n";
+            $code .= '                $response = [\'status\' => 0 ];'."\r\n";
+            $code .= '                foreach ($messages as $msg) {'."\r\n";
+            $code .= '                    $response[\'msg\']=$msg->getMessage();'."\r\n";
+            $code .= '                    break;'."\r\n";
+            $code .= '                }'."\r\n";
+            $code .= '                return $this->response->setJsonContent($response);'."\r\n";
+            $code .= '            } else {'."\r\n";
+            $code .= '                return $this->response->setJsonContent([ \'status\' => 1]);'."\r\n";
+            $code .= '            }'."\r\n";
+            $code .= '            $this->view->disable();'."\r\n";
+            $code .= '        }'."\r\n";
+            $code .= '    }'."\r\n\r\n";
+
+
+            $code .= '}'."\r\n";
+
+            if(false === file_put_contents($file, $code)){
+                echo '<font color="red">Generate Controller failed！</font>';
+            }else{
+                echo '<font color="green">Generate success!,Please modify according to your needs!</font>';
+            }
         }
-
-        $code .= '            if ($'.$vname.'->save() === false) {'."\r\n";
-        $code .= '                $messages = $'.$vname.'->getMessages();'."\r\n";
-        $code .= '                $response = [\'status\' => 0 ];'."\r\n";
-        $code .= '                foreach ($messages as $msg) {'."\r\n";
-        $code .= '                    $response[\'msg\']=$msg->getMessage();'."\r\n";
-        $code .= '                    break;'."\r\n";
-        $code .= '                }'."\r\n";
-        $code .= '                return $this->response->setJsonContent($response);'."\r\n";
-        $code .= '            } else {'."\r\n";
-        $code .= '                return $this->response->setJsonContent([ \'status\' => 1]);'."\r\n";
-        $code .= '            }'."\r\n";
-        $code .= '            $this->view->disable();'."\r\n";
-        $code .= '        }'."\r\n";
-        $code .= '    }'."\r\n\r\n";
-
-
-        $code .= '}'."\r\n";
     }
     
     /**
      * Generate views code
      *
      * @access public
+     * @param string $mname
      * @return void
      */
-    public function generateViews()
+    public function generateViews($mname)
     {
-        //TODO: edit view,list view
         $info    = self::$tableInfo[$this->table];
         $var     = strtolower($info['modelName']);
+        $ext     = $this->config['volt_extension'];
+        $viewDir = rtrim($this->config['dir']['view'],'/\\').'/'.$var;
+
+        if(!is_dir($viewDir.'/')){
+            mkdir($viewDir.'/', 0777, true);
+        }
         
         //Generate add views
-        $addfile = rtrim($this->config['dir']['view'],'/\\').'/'.$var.'/add'.$this->config['volt_extension'];
+        $addfile = $viewDir.'/add'.$ext;
         if(file_exists($addfile)){
-            echo '<font color="blue">新增模板已存在，请手动删除后，重新生成!</font>';
+            echo '<font color="blue">File "add.'.$ext.'" exists!Please delete it manually to regenerate.</font><br>';
         }else{
             $addhtml   = file_get_contents('./tpl/add.tpl');
             $addblock  = '';
@@ -356,24 +382,83 @@ class PhalconWings
                 if( in_array($name, ['status']) ){
                     continue;
                 }
+
                 $addblock .= '      <tr class="tb">'."\r\n";
                 $addblock .= '        <td class="label">'.$field['comment'].'：</td>'."\r\n";
-                $addblock .= '        <td><input type="text" name="'.$name.'" class="ipt" />';
-                $addblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                if( ( $field['type'] == 'varchar' && intval($field['length']) > 100 ) ||
+                    ( preg_match('/text$/', $field['type']) )
+                    ){
+                    $addblock .= '        <td><textarea name="'.$name.'" class="ipt" ';
+                    $addblock .= 'style="width:90%;height:60px;"></textarea></td>'."\r\n";
+
+                }elseif( $field['type'] == 'date' ){
+                    $addblock .= '        <td><input type="date" name="'.$name.'" class="ipt" />';
+                    $addblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                }elseif( $field['type'] == 'datetime' ){
+                    $addblock .= '        <td><input type="datetime-local" name="'.$name.'" class="ipt" />';
+                    $addblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                }else{
+                    $addblock .= '        <td><input type="text" name="'.$name.'" class="ipt" />';
+                    $addblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                }
                 $addblock .= '      </tr>'."\r\n";
             }
-            $addhtml = str_replace(['##ctl##','##addblock##'], [$var, $addblock], $addhtml);
+            $addhtml = str_replace(['##ctl##','##addblock##', '##mname##'], [$var, $addblock, $mname], $addhtml);
             if(false === file_put_contents($addfile, $addhtml)){
-                echo '<font color="red">新增模板创建失败!</font>';
+                echo '<font color="red">File "add.'.$ext.'" generate faild!</font><br>';
             }else{
-                echo '<font color="green">新增模板创建成功，请根据需求修改！</font>';
+                echo '<font color="green">Generate "add.'.$ext.'" success! Please modify according to your needs!</font><br>';
+            }
+        }
+
+        //Generate edit views
+        $editfile = $viewDir.'/edit'.$ext;
+        if(file_exists($editfile)){
+            echo '<font color="blue">File "edit.'.$ext.'" exists! Please delete it manually to regenerate.</font><br>';
+        }else{
+            $edithtml   = file_get_contents('./tpl/edit.tpl');
+            $editblock  = '';
+            foreach($info['fields'] as $name => $field){
+                if($field['extra'] == 'auto_increment'){
+                    continue;
+                }
+                if( in_array($name, ['status']) ){
+                    continue;
+                }
+                $editblock .= '      <tr class="tb">'."\r\n";
+                $editblock .= '        <td class="label">'.$field['comment'].'：</td>'."\r\n";
+                if( ( $field['type'] == 'varchar' && ( intval($field['length']) > 100 ) ) ||
+                    ( preg_match('/text$/', $field['type']) )
+                    ){
+                    $editblock .= '        <td><textarea name="'.$name.'" class="ipt" ';
+                    $editblock .= 'style="width:90%;height:60px;">{{'.$var.'.'.$name.'}}</textarea></td>'."\r\n";
+                }elseif( $field['type'] == 'date' ){
+                    $editblock .= '        <td><input type="date" name="'.$name.'" class="ipt" value="{{'.$var.'.'.$name.'}}" />';
+                    $editblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                }elseif( $field['type'] == 'datetime' ){
+                    $editblock .= '        <td><input type="datetime-local" name="'.$name.'" class="ipt" value="{{'.$var.'.'.$name.'}}" />';
+                    $editblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                }else{
+                    $editblock .= '        <td><input type="text" name="'.$name.'" class="ipt" value="{{'.$var.'.'.$name.'}}" />';
+                    $editblock .= '<span class="tips">'.$field['comment'].'</span></td>'."\r\n";
+                }
+                $editblock .= '      </tr>'."\r\n";
+            }
+            $edithtml = str_replace(
+                ['##ctl##','##editblock##', '##mname##', '##pk##'] , 
+                [$var, $editblock, $mname, $info['pk'][0]] , 
+                $edithtml);
+            if(false === file_put_contents($editfile, $edithtml)){
+                echo '<font color="red">File "edit.'.$ext.'" generate faild!</font><br>';
+            }else{
+                echo '<font color="green">Generate "edit.'.$ext.'" success! Please modify according to your needs!</font><br>';
             }
         }
 
         //Generate index/list views
-        $listfile = rtrim($this->config['dir']['view'],'/\\').'/'.$var.'/index'.$this->config['volt_extension'];
-        if(file_exists($addfile)){
-            echo '<font color="blue">列表模板已存在，请手动删除后，重新生成!</font>';
+        $listfile = $viewDir. '/index' . $ext;
+        if(file_exists($listfile)){
+            echo '<font color="blue">File "index.'.$ext.'" exists!Please delete it manually to regenerate.</font><br>';
         }else{
             $listhtml = file_get_contents('./tpl/index.tpl');
             $thblock  = '';
@@ -384,15 +469,15 @@ class PhalconWings
             }
             $colspan = count($info['fields'])+2;
             $listhtml = str_replace(
-                ['##ctl##','##pk##', '##thblock##','##tdblock##','##colspan##'] , 
-                [$var, $info['pk'][0], $thblock, $tdblock, $colspan] , 
+                ['##ctl##', '##pk##', '##thblock##', '##tdblock##', '##colspan##', '##mname##'] , 
+                [$var, $info['pk'][0], $thblock, $tdblock, $colspan, $mname] , 
                 $listhtml );
-
             if(false === file_put_contents($listfile, $listhtml)){
-                echo '<font color="red">列表模板创建失败!</font>';
+                echo '<font color="red">File "index.'.$ext.'" generate faild!</font><br>';
             }else{
-                echo '<font color="green">列表模板创建成功，请根据需求修改！</font>';
+                echo '<font color="green">Generate "index.'.$ext.'" success! Please modify according to your needs!</font><br>';
             }
+        }
     }
 
     /**
@@ -437,6 +522,7 @@ class PhalconWings
 
 $action  = isset($_GET['action']) ? $_GET['action'] : '';
 $table   = preg_replace('/[^a-z0-9_]+/i', '', isset($_GET['table']) ? $_GET['table'] : '' );
+$mname   = isset($_GET['mname']) ? $_GET['mname'] : 'Something';
 $message = '';
 
 try{
@@ -454,7 +540,7 @@ try{
             exit;
         }   
         if( 'view' == $action){
-            $pw->generateViews();
+            $pw->generateViews($mname);
             exit;
         }
     }
@@ -507,6 +593,12 @@ try{
     </td>
   </tr>
   <tr class="tb">
+    <td class="label">模型简称：<br>Model name: </td>
+    <td>
+        <input type="text" name="name" id="mname" class="ipt" />
+    </td>
+  </tr>
+  <tr class="tb">
     <td>&nbsp;</td>
     <td><input class="sbtn blue" type="button" value=" 一键生成 " id="docreate" /></td>
   </tr>
@@ -539,13 +631,14 @@ try{
 $(document).ready(function(){
   $('#docreate').click(function(){
     var table = $('#table').val();
+    var mname = $('#mname').val();
     if( table == '' ){
       art.dialog.alert('请选择数据表！');
       return;
     }
     if($('#modc').get(0).checked) $('#modcon').load('?action=model&table='+table);
     if($('#ctlc').get(0).checked) $('#ctlcon').load('?action=controller&table='+table);
-    if($('#tplc').get(0).checked) $('#tplcon').load('?action=view&table='+table);
+    if($('#tplc').get(0).checked) $('#tplcon').load('?action=view&table='+table+'&mname='+mname);
   });
 });
 </script>

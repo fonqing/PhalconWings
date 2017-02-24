@@ -3,7 +3,7 @@
 <head>
 <meta name="renderer" content="webkit" />
 <meta charset="UTF-8">
-<title>xxxx List</title>
+<title>##mname## List</title>
 <link rel="stylesheet" type="text/css" href="/static/css/phalconwings.css" />
 </head>
 <body>
@@ -12,14 +12,14 @@
     <td>
       <div class="path">
         <a href="{{url('index/index')}}">Home</a> <span class="split">/</span>
-        <a href="{{url('##ctl##/index')}}">xxxx List</a>
+        <a href="{{url('##ctl##/index')}}">##mname## List</a>
       </div>
     </td>
   </tr>
 </table>
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
     <tr>
-        <td><a class="sbtn blue" href="{{url('##ctl##/add')}}">New xxxx</a></td>
+        <td><a class="sbtn blue" href="{{url('##ctl##/add')}}">New ##mname##</a></td>
         <td>
         <!--
         <form method="get" action="{{url('##ctl##/index')}}">
@@ -33,7 +33,7 @@
     <thead>
       <tr class="th">
         <td width="30">#</td>
-        ##thblobk##
+        ##thblock##
         <td class="ops">Operation</td>
       </tr>
     </thead>

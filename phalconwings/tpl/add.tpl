@@ -3,8 +3,8 @@
 <head>
 <meta name="renderer" content="webkit" />
 <meta charset="UTF-8">
-<title>Add xxxx</title>
-<link rel="stylesheet" type="text/css" href="/static/css/phlconwings.css" />
+<title>Add ##mname##</title>
+<link rel="stylesheet" type="text/css" href="/static/css/phalconwings.css" />
 </head>
 <body>
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -12,8 +12,8 @@
     <td>
       <div class="path">
         <a href="{{url('index/index')}}">Home</a> <span class="split">/</span>
-        <a href="{{url('##ctl##/index')}}">xxxx List</a> <span class="split">/</span>
-        <a>Add xxxx</a>
+        <a href="{{url('##ctl##/index')}}">##mname## list</a> <span class="split">/</span>
+        <a>Add ##mname##</a>
       </div>
     </td>
   </tr>
@@ -21,7 +21,7 @@
 <form action="{{url('##ctl##/add')}}" onsubmit="return false;">
     <table width="100%" cellspacing="0" cellpadding="8" border="0" class="formtable">
       <tr class="th">
-        <td colspan="2">Add xxxx</td>
+        <td colspan="2">Add ##mname##</td>
       </tr>
       ##addblock##
       <tr class="tb2">
