@@ -62,3 +62,5 @@
   ```
   http://path-to-your-project/phalconwings/
   ``` 
+
+5. Create mysql data table. Tips: Please add a comment for each field ( 建立模型数据表，注意：请给字段加上简要注释，注释会出现在模板的表单label中)
