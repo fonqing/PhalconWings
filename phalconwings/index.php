@@ -270,6 +270,7 @@ class PhalconWings
         $name  = $info['modelName'];
         $cname = ucfirst($name);
         $vname = strtolower($name);
+        $pk    = $info['pk'][0];
 
         $file = rtrim($this->config['dir']['controller'],'/\\').'/'.$cname.'Controller.php';
 
@@ -285,7 +286,8 @@ class PhalconWings
 
             $code .= 'class ' . $cname . 'Controller extends ' . $this->config['baseController'] . "\r\n";
             $code .= '{'."\r\n";
-          
+            
+            #index Action
             $code .= '    public function indexAction()'."\r\n";
             $code .= '    {'."\r\n";
             $code .= '        $page = $this->request->get(\'page\', \'int\', 1);'."\r\n";
@@ -303,7 +305,8 @@ class PhalconWings
             $code .= '        $pager = $paginator->getPaginate();'."\r\n";
             $code .= '        $this->view->pager = $pager;'."\r\n";
             $code .= '    }'."\r\n\r\n";
-
+            
+            #Add Action
             $code .= '    public function addAction()'."\r\n";
             $code .= '    {'."\r\n";
             $code .= '        if( $this->request->isPost() ){'."\r\n";
@@ -332,7 +335,6 @@ class PhalconWings
                     $code .= '            $'.$vname.'->'.$fieldname.' = ';
                     $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\',\''.$field['default'].'\');'."\r\n";
                 }
-                
 
             }
 
@@ -351,7 +353,102 @@ class PhalconWings
             $code .= '        }'."\r\n";
             $code .= '    }'."\r\n\r\n";
 
+            #Edit Action
+            $code .= '    public function editAction()'."\r\n";
+            $code .= '    {'."\r\n";
+            $code .= '        if( $this->request->isPost() ){'."\r\n";
+            $code .= '            $id  =  $this->request->getPost(\'id\', \'int\');'."\r\n";
+            $code .= '            if(!$id){'."\r\n";
+            $code .= '                $response[\'msg\'] = \'id missd!\';'."\r\n";
+            $code .= '                return $this->response->setJsonContent([\'status\' => 0]);'."\r\n";
+            $code .= '            }'."\r\n";
+            $code .= '            $'.$vname.' = ' . $cname . '::findFirst($id);'."\r\n";
+            
+            foreach($info['fields'] as $fieldname => $field){
 
+                if($field['extra'] == 'auto_increment'){
+                    continue;
+                }
+
+                $filter = 'string';
+                if( preg_match('/int$/i', $field['type']) ){
+                    $filter = 'int';
+                }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
+     
+                }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
+                    $filter = 'float';
+                }elseif( preg_match('/email/i', $fieldname)){
+                    $filter = 'email';
+                }
+                if( is_null($field['default']) ) {
+                    $code .= '            $'.$vname.'->'.$fieldname.' = ';
+                    $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\');'."\r\n";
+                }else{
+                    $code .= '            $'.$vname.'->'.$fieldname.' = ';
+                    $code .= '$this->request->getPost(\''.$fieldname.'\',\''.$filter.'\',\''.$field['default'].'\');'."\r\n";
+                }
+
+            }
+
+            $code .= '            if ($'.$vname.'->save() === false) {'."\r\n";
+            $code .= '                $messages = $'.$vname.'->getMessages();'."\r\n";
+            $code .= '                $response = [\'status\' => 0 ];'."\r\n";
+            $code .= '                foreach ($messages as $msg) {'."\r\n";
+            $code .= '                    $response[\'msg\']=$msg->getMessage();'."\r\n";
+            $code .= '                    break;'."\r\n";
+            $code .= '                }'."\r\n";
+            $code .= '                return $this->response->setJsonContent($response);'."\r\n";
+            $code .= '            } else {'."\r\n";
+            $code .= '                return $this->response->setJsonContent([\'status\' => 1]);'."\r\n";
+            $code .= '            }'."\r\n";
+            $code .= '            $this->view->disable();'."\r\n";
+            $code .= '        } else {'."\r\n";
+            $code .= '            $id = $this->request->get(\'id\', \'int\');'."\r\n";
+            $code .= '            $'.$vname.' = '.$cname.'::findFirst($id);'."\r\n";
+            $code .= '            $this->view->'.$vname.' = $'.$vname.';'."\r\n";
+            $code .= '        }'."\r\n";
+            $code .= '    }'."\r\n\r\n";
+
+            #Delete Action
+            $code .= '    public function delAction()'."\r\n";
+            $code .= '    {'."\r\n";
+            $code .= '        $response = ['."\r\n";
+            $code .= '            \'status\' => 0, '."\r\n";
+            $code .= '            \'msg\'    => \'Delete faild\''."\r\n";
+            $code .= '        ];'."\r\n\r\n";
+            $code .= '        if($this->request->isPost()){'."\r\n";
+            $code .= '            $ids = $this->request->getPost(\'ids\');'."\r\n";
+            $code .= '        }else{'."\r\n";
+            $code .= '            $id  =  $this->request->get(\'id\', \'int\');'."\r\n";
+            $code .= '            $ids = [$id];'."\r\n";
+            $code .= '        }'."\r\n\r\n";
+            $code .= '        if(!is_array($ids) || empty($ids)){'."\r\n";
+            $code .= '            return $this->response->setJsonContent($response);'."\r\n";
+            $code .= '        }'."\r\n\r\n";
+            $code .= '        $idss = [];'."\r\n";
+            $code .= '        foreach($ids as $id){'."\r\n";
+            $code .= '            $id = intval($id);'."\r\n";
+            $code .= '            if($id > 0){'."\r\n";
+            $code .= '                $idss[]=$id;'."\r\n";
+            $code .= '            }'."\r\n";
+            $code .= '        }'."\r\n";
+            $code .= '        if(empty($idss)){'."\r\n";
+            $code .= '            return $this->response->setJsonContent($response);'."\r\n";
+            $code .= '        }'."\r\n\r\n";
+            $code .= '        $'.$vname.'   = '.$cname.'::find([\''.$pk.' IN ({ids:array})\',\'bind\' => [ \'ids\' => $idss]]);'."\r\n";
+            $code .= '        $result = $'.$vname.'->delete();'."\r\n";
+            $code .= '        if($result === false){'."\r\n";
+            $code .= '            $messages = $'.$vname.'->getMessages();'."\r\n";
+            $code .= '            foreach ($messages as $msg) {'."\r\n";
+            $code .= '                $response[\'msg\'] = $msg->getMessage();'."\r\n";
+            $code .= '                break;'."\r\n";
+            $code .= '            }'."\r\n";
+            $code .= '        }else{'."\r\n";
+            $code .= '            $response[\'status\'] = 1;'."\r\n";
+            $code .= '            unset($response[\'msg\']);'."\r\n";
+            $code .= '        }'."\r\n\r\n";
+            $code .= '        return $this->response->setJsonContent($response);'."\r\n";
+            $code .= '    }'."\r\n";
             $code .= '}'."\r\n";
 
             if(false === file_put_contents($file, $code)){

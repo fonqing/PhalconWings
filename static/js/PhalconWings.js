@@ -103,6 +103,21 @@
                 PhalconWings.doPost(this, message, redirect);
             });
         });
+        $('a[role="pw_urlsubmit"]').each(function(i, element){
+            $(element).click(function(){
+                var form = $('#listform'),
+                    url  = $(this).attr('action'),
+                    msg  = $(this).attr('msg'),
+                    confirm  = $(this).attr('confirm');
+                art.dialog.confirm(confirm, function(){
+                    $.post(url, form.serialize(), function(response){
+                        ( response.status == 1 ) ?
+                            PhalconWings.showMessage(msg) :
+                            art.dialog.alert(response.msg);
+                    }, 'json');
+                });
+            });
+        });
     };
 
     /**

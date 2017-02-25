@@ -29,6 +29,7 @@
         </td>
     </tr>
  </table>
+ <form id="listform" onsubmit="return false;">
  <table width="100%" cellspacing="0" cellpadding="8" border="0" class="datatable">
     <thead>
       <tr class="th">
@@ -54,9 +55,17 @@
       {% endfor %}
     </tbody>
   </table>
+</form>
   <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:8px;">
   <tr class="tb2">
-      <td><a class="sbtn blue" role="checkall">Check All</a></td>
+      <td>
+        <a class="sbtn blue" role="pw_checkall">Check All</a>
+        <a class="sbtn red" role="pw_urlsubmit" action="{{url('##ctl##/del')}}" confirm="Are you sure to delete?" msg="Delete succed"> Delete Selected </a>
+        <!--
+        Example: Create auditAction in controller to use this button
+        <a class="sbtn green" role="pw_urlsubmit" action="{{url('##ctl##/audit')}}" confirm="Are you sure to audit?" msg="Audit succed"> Audit Selected </a>
+        -->
+      </td>
       <td align="right">
         <div class="pagenation">
           {{ link_to("##ctl##/index", "First") }}
