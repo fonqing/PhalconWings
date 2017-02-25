@@ -57,10 +57,13 @@
   Configure your items and make sure the dir configuration that have write permission.
   (根据你的具体情况修改配置，并保证dir设置对应的目录具有写权限)
 
-4. Visit PhalconWings by the browser likes (通过浏览器访问phalconwings)
+
+4. Create mysql data table. Tips: Please add a comment for each field ( 建立模型数据表，注意：请给字段加上简要注释，注释会出现在模板的表单label中)
+
+
+5. Visit PhalconWings by the browser likes (通过浏览器访问phalconwings)
+
 
   ```
   http://path-to-your-project/phalconwings/
   ``` 
-
-5. Create mysql data table. Tips: Please add a comment for each field ( 建立模型数据表，注意：请给字段加上简要注释，注释会出现在模板的表单label中)
