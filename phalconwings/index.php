@@ -116,12 +116,23 @@ class PhalconWings
             return false;
         }
         $this->table = $table;
-        $infos       = $this->connection->fetchAll("SHOW FULL COLUMNS FROM `{$table}`");
-        $fields      = [];
-        $primarykeys = [];
+        $infos       = $this->getTableInfo($table);
+        $model       = $this->getModelName($table);
 
+        self::$tableInfo[$table] = [
+            'modelName' => $model,
+            'pk'        => $infos['pk'],
+            'fields'    => $infos['fields'],
+        ];
+        return true;
+    }
+
+    private function getTableInfo($table)
+    {
+        $fields = [];
+        $primarykeys = [];
+        $infos = $this->connection->fetchAll("SHOW FULL COLUMNS FROM `{$table}`");
         foreach($infos as $field){
-            
             preg_match('/(\w+)\((\d+)\)/i', $field['Type'], $match);
             $length = null;
             $type   = empty($match[1]) ? $field['Type'] : $match[1];
@@ -143,15 +154,11 @@ class PhalconWings
                 'extra'   => $field['Extra'],
                 'comment' => $field['Comment'],
             ];
-            //auto_increment
         }
-        $model = $this->camlize( str_replace($this->config['db']['tablePrefix'], '', $table) );
-        self::$tableInfo[$table] = [
-            'modelName' => $model,
-            'pk'        => $primarykeys,
-            'fields'    => $fields,
-        ];
-        return true;
+        return [
+            'fields' => $fields,
+            'pk'     => $primarykeys
+        ]; 
     }
 
     /**
@@ -164,8 +171,7 @@ class PhalconWings
     {
         $info   = self::$tableInfo[$this->table];
         $model  = $info['modelName'];
-
-        $file = rtrim($this->config['dir']['model'],'/\\').'/'.$model.'.php';
+        $file   = rtrim($this->config['dir']['model'],'/\\').'/'.$model.'.php';
 
         if(file_exists($file)){
 
@@ -179,7 +185,7 @@ class PhalconWings
             $code  .= 'use Phalcon\Validation\Validator\PresenceOf;'."\r\n";
             $code  .= 'use Phalcon\Validation\Validator\StringLength;'."\r\n";
             $code  .= 'use Phalcon\Validation\Validator\Numericality;'."\r\n";
-            $code  .= "class {$model} extends Model\n\r";
+            $code  .= "class {$model} extends Model\r\n";
             $code  .= '{'."\r\n";
 
             $vars   = [];
@@ -212,13 +218,13 @@ class PhalconWings
                 $vars[] = '     */';
                 $vars[] = '    protected $'.$fieldname.';';
 
-                if(!in_array($fieldname, $info['pk'])){
-                    $seters[] = '    public function set'.$this->camlize($fieldname).'($'.$fieldname.')';
+                if($field['extra'] != 'auto_increment'){
+                    $seters[] = '    public function set'.$this->camelize($fieldname).'($'.$fieldname.')';
                     $seters[] = '    {';
                     $seters[] = '        $this->'.$fieldname.' = $'.$fieldname.';';
                     $seters[] = '    }';
                 }
-                $geters[] = '    public function get'.$this->camlize($fieldname).'()';
+                $geters[] = '    public function get'.$this->camelize($fieldname).'()';
                 $geters[] = '    {';
                 $geters[] = '        return $this->'.$fieldname.';';
                 $geters[] = '    }';
@@ -231,7 +237,13 @@ class PhalconWings
             $code  .= '    public function initialize()'."\r\n";
             $code  .= '    {'."\r\n";
             $code  .= '        $this->setSource(\''.$this->table.'\');'."\r\n";
-            $code  .= '        $this->setup([\'notNullValidations\'=>false]);'."\r\n";
+            $code  .= '        $this->setup([\'notNullValidations\' => false]);'."\r\n";
+            $rel    = $this->parseRelation($this->table);
+            if(!empty($rel)){
+                $code  .= '        '.$rel;
+            }else{
+                $code  .= "        #RELATION#\r\n";
+            }
             $code  .= '    }'."\r\n";
             $rules .= '        return $this->validate($validator);'."\r\n";
             $rules .= '    }'."\r\n";
@@ -239,9 +251,9 @@ class PhalconWings
             $code  .= "\r\n}";
 
             if(false === file_put_contents($file, $code)){
-                echo '<font color="red">Generate Model failed！</font>';
+                echo '<font color="red">Generate Model failed!</font>';
             }else{
-                echo '<font color="green">Generate success!,Please modify according to your needs!</font>';
+                echo '<font color="green">Generate success! Please modify according to your needs!</font>';
             }
         }
     }
@@ -481,6 +493,145 @@ class PhalconWings
     }
 
     /**
+     * Prepare Model name from a table name
+     *
+     * @access private
+     * @param string $table 
+     * @return string
+     */
+    private function getModelName($table)
+    {
+        $prefix = $this->config['db']['tablePrefix'];
+        $table  = str_replace($prefix, '', $table);
+        return $this->camelize($table);
+    }
+    
+    /**
+     * Parse relation code
+     *
+     * @access private
+     * @param string $selfTable 
+     * @return string
+     */
+    private function parseRelation($selfTable)
+    {
+        $code = '';
+        $refs = $this->connection->describeReferences($selfTable);
+        foreach($refs as $ref){
+            $selfColumns  = $ref->getColumns();
+            $distTable    = $ref->getReferencedTable();
+            $distColumns  = $ref->getReferencedColumns();
+
+            //Only one column relation
+            if( (count($selfColumns) * count($distColumns)) == 1){
+                $codes = $this->getRelation($selfTable, $selfColumns[0], $distTable, $distColumns[0]);
+                $code .= $codes['self'];
+                $distModel = $this->getModelName($distTable);
+                $file = $this->config['dir']['model'].'/'.$distModel.'.php';
+                if( file_exists($file) && !empty($codes['dist']) ){
+                    $content = file_get_contents($file);
+                    $content = str_replace('#RELATION#', $codes['dist'], $content);
+                    file_put_contents($file, $content);
+                }
+            }else{
+                //TODO 
+            }
+        }
+        return $code;
+    }
+
+    /**
+     * Generate relation code
+     *
+     * @access private
+     * @param string $selfTable 
+     * @param string $selfColumn
+     * @param string $distTable 
+     * @param string $distColumn
+     * @return array
+     */
+    private function getRelation($selfTable, $selfColumn, $distTable, $distColumn)
+    {
+        $selfKeyInfo = $this->getIndexType($selfTable, $selfColumn);
+        $distKeyInfo = $this->getIndexType($distTable, $distColumn);
+        $tableInfo   = $this->getTableInfo($selfTable);
+        $selfColumn  = $tableInfo['fields'][$selfColumn];
+        unset($tableInfo);
+        $tableInfo   = $this->getTableInfo($distTable);
+        $distColumn  = $tableInfo['fields'][$distColumn];
+        unset($tableInfo);
+        if( $selfColumn['key'] == 'MUL' ){
+            if( $distColumn['key'] == 'PRI' || in_array('UNI', $distKeyInfo) ){
+                $selfRelType = 'belongsTo';
+                $objRelType  = 'hasMany';
+            }elseif($distColumn['key'] == 'MUL' ){
+                $selfRelType = 'hasManyToMany';
+                $objRelType  = 'hasManyToMany';
+            }
+        }elseif( $selfColumn['key'] == 'PRI' || in_array('UNI', $selfKeyInfo) ){
+            if(  $distColumn['key'] == 'PRI' || in_array('UNI', $distKeyInfo) ){
+                $selfRelType = 'hasOne';
+                $objRelType  = 'hasOne';
+            }elseif($distColumn['key'] == 'MUL' ){
+                $selfRelType = 'hasMany';
+                $objRelType  = 'belongsTo';
+            }
+        }
+        $self  = '';
+        $dist  = '';
+        $distModel = $this->getModelName($distTable);
+        $selfModel = $this->getModelName($selfTable);
+        if(!empty($selfRelType)){
+            $self .= "\$this->{$selfRelType}('{$selfColumn['name']}','{$distModel}','{$distColumn['name']}');\r\n";
+            $self .= "        #RELATION#\r\n";
+        }
+        if(!empty($objRelType)){
+            $dist .= "\$this->{$objRelType}('{$distColumn['name']}','{$selfModel}','{$selfColumn['name']}');\r\n";
+            $dist .= "        #RELATION#\r\n";
+        }
+        return [
+            'self' => $self,
+            'dist' => $dist,
+        ];
+    }
+    
+    /**
+     * Get index infomation
+     *
+     * @access private
+     * @param string $table 
+     * @param string $field
+     * @return array
+     */
+    private function getIndexType($table, $field)
+    {
+        //TODO:How to support Union PRIMARY KEY
+        $types  = [];
+        $indexs = $this->connection->describeIndexes($table);
+        foreach($indexs as $indexName => $index){
+            $columns = $index->getColumns();
+            $type    = $index->getType();
+            if( $indexName == 'PRIMARY' && 
+                count($columns)==1 && 
+                $columns[0] == $field ){
+
+                $types[]='PRI';
+
+            }elseif(count($columns)==1 && 
+                $columns[0] == $field && 
+                $type == 'UNIQUE' ){
+
+                $types[]='UNI';
+
+            }else{
+                $types[]='MUL';
+            }
+        }
+
+        return $types;
+    }
+
+    /**
      * Check a dir if readable
      *
      * @access private
@@ -507,7 +658,7 @@ class PhalconWings
      * @param boolean $ucfirst
      * @return string
      */
-    private function camlize($str, $ucfirst = true)
+    private function camelize($str, $ucfirst = true)
     {
         $str = ucwords(str_replace('_', ' ', $str));
         $str = str_replace(' ', '', lcfirst($str));
