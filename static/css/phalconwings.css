@@ -1,6 +1,3 @@
-/**
- * A simple styles for backend pages
- */
 body { font-size:12px;font-family:'微软雅黑','Microsoft Yahei',Tahoma,'Simsun'}
 ul,ol { display:block;margin:0;padding:0;list-style:none;}
 li { display:block;margin:0;padding:0;list-style: none;}
@@ -9,30 +6,25 @@ img { border:0;}
 label { cursor:pointer;}
 a,a:focus{text-decoration:none;color:#000;outline:none;cursor:pointer;blur:expression(this.onFocus=this.blur());}
 a:hover{color:#00a4ac;text-decoration:none;cursor:pointer;}
-
 .path { background:#f5f5f5 url('../images/ghome.png') no-repeat 10px center;color:#ccc;height:36px;line-height:36px;padding:0px 14px;margin-bottom:10px;font-size:12px;padding-left:30px;}
 .path a { text-decoration:none;color:#444;}
 .path .split { margin:0 6px;}
-
 .datatable { border:1px solid #ddd;color:#777;border-bottom:none;}
 .datatable a { text-decoration:none;cursor:pointer;}
 .datatable .th td { background-color:#f7f7f7;color:#555;font-size:14px;font-weight:bold;border-bottom:1px solid #ddd;}
 .datatable .tb td { background-color:#fff;border-bottom:1px solid #ddd;}
 .datatable .odd td { background-color:#f9f9f9;}
 .datatable .on td { background-color:#fffff7;}
-
 .formtable { border:1px solid #ddd;color:#777;}
 .formtable a { text-decoration:none;cursor:pointer;}
 .formtable .th td { background-color:#f7f7f7;color:#555;font-size:14px;font-weight:bold;border-bottom:1px solid #ddd;}
 .formtable .tb td { background-color:#fff;border-bottom:1px solid #ddd;}
-
 .label { text-align:right;width:90px;color:#555;}
 .btit { background-color:#eee;text-align:center;color:#888;padding:8px;margin:0 10px 10px 0;}
 .ipt { border:1px solid #ccc;background-color:#fff;padding:4px;box-shadow:inset 2px 2px 8px #eee;font-family:'Verdana','宋体';resize:none;}
 .ipt:focus { border:1px solid rgb(59,181,242);box-shadow:inset 2px 2px 8px #c8edff;outline:none;}
 .iptmini { width:60px;}
 .ssbtn { display:inline-block;border-radius:3px;padding:3px 10px;font-size:12px;color:#fff;text-decoration:none;}
-
 .ops { text-align:right;}
 .ops a { display:inline-block;border-radius:3px;}
 .ops .edit { padding:3px 10px;background:#2fade7 url('../images/op_edit.gif') no-repeat center center;}
@@ -43,14 +35,11 @@ a:hover{color:#00a4ac;text-decoration:none;cursor:pointer;}
 a.sbtn {display: inline-block;margin-bottom: 10px}
 a.sbtn:hover,a.sbtn:focus { color:#fff;}
 a.ssbtn:hover { color:#fff;}
-
 .green {border-color: #4cae4c;background-color: #5cb85c;background-image: -moz-linear-gradient(top,#5cb85c 0,#5cb85c 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#5cb85c),to(#5cb85c));background-image: -webkit-linear-gradient(top,#5cb85c 0,#5cb85c 100%);background-image: -o-linear-gradient(top,#5cb85c 0,#5cb85c 100%);background-image: linear-gradient(to bottom,#5cb85c 0,#5cb85c 100%);}
 .blue {border-color: #2e6da4;background-color: #337ab7;background-image: -moz-linear-gradient(top,#337ab7 0,#337ab7 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#337ab7),to(#337ab7));background-image: -webkit-linear-gradient(top,#337ab7 0,#337ab7 100%);background-image: -o-linear-gradient(top,#337ab7 0,#337ab7 100%);background-image: linear-gradient(to bottom,#337ab7 0,#337ab7 100%);}
 .gray {border-color: #aaa;background-color: #aaa;background-image: -moz-linear-gradient(top,#aaa 0,#aaa 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#aaa),to(#aaa));background-image: -webkit-linear-gradient(top,#aaa 0,#aaa 100%);background-image: -o-linear-gradient(top,#aaa 0,#aaa 100%);background-image: linear-gradient(to bottom,#aaa 0,#aaa 100%);}
 .red {border-color: #c43100;background-color: #cc3300;background-image: -moz-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: -webkit-gradient(linear,0 0,0 100%,from(#cc3300),to(#cc3300));background-image: -webkit-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: -o-linear-gradient(top,#cc3300 0,#cc3300 100%);background-image: linear-gradient(to bottom,#cc3300 0,#cc3300 100%);}
-
 .pagenation a,.pagenation span { display:inline-block;padding:5px 6px;background-color:#eee;border:1px solid #ddd;color:#333;border-radius:3px;}
-
 .need { font-size:14px;color:red;font-weight:bold;margin-left:10px;}
 .notice { border:1px solid #f90;cursor:pointer;background-color:#ffc;color:#f60;font-size:12px;text-align:center;margin:0 0 10px 0;padding:3px 6px;}
 .tips { color:#aaa;font-size:12px;text-align:center;margin:0 0 10px 0;padding:3px 6px;}
