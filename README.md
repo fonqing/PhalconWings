@@ -1,5 +1,5 @@
 # PhalconWings
-  An automatic code generator for Phalcon Framework.Used to generate backend Controllers,Models and Views code.She can help you generate most of the basic code, to reduce basic mechanical works. 
+  An automatic code generator for Phalcon Framework.Used to generate backend Controllers,Models and Views.She can help you generate most of the basic code, to reduce basic mechanical works. 
   
   The first release version Coming Soon!
   
@@ -18,9 +18,9 @@
 
 ### Usage (使用方法)
 
-1. Check your development environment and install git. (检查您的开发环境与要求相匹配并安装好git版本工具)
+1. Check your develop environment and install git. (检查您的开发环境与要求相匹配并安装好git版本工具)
 
-2. Open *Git Bash Here* on your web root directory run (在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行:)
+2. Open *Git Bash Here* on your web root directory, clone the project to your web root: (在您的项目对外访问的根目录文件夹上单击右键，选择“Git Bash here”，在命令行中执行:)
 
   ```
   git clone https://github.com/fonqing/PhalconWings.git ./
