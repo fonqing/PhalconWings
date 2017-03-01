@@ -129,13 +129,13 @@ class PhalconWings
 
     private function getTableInfo($table)
     {
-        $fields = [];
+        $fields      = [];
         $primarykeys = [];
-        $infos = $this->connection->fetchAll("SHOW FULL COLUMNS FROM `{$table}`");
+        $infos       = $this->connection->fetchAll("SHOW FULL COLUMNS FROM `{$table}`");
         foreach($infos as $field){
             preg_match('/(\w+)\((\d+)\)/i', $field['Type'], $match);
-            $length = null;
-            $type   = empty($match[1]) ? $field['Type'] : $match[1];
+            $length  = null;
+            $type    = empty($match[1]) ? $field['Type'] : $match[1];
 
             if( !empty($match[2]) ){
                 $length = intval($match[2]);
@@ -257,7 +257,7 @@ class PhalconWings
                 $vars[] = '     */';
                 $vars[] = '    protected $'.$fieldname.';';
 
-                if($field['extra'] != 'auto_increment'){
+                if( !$isAutoincrement ){
                     $seters[] = '    public function set'.$this->camelize($fieldname).'($'.$fieldname.')';
                     $seters[] = '    {';
                     $seters[] = '        $this->'.$fieldname.' = $'.$fieldname.';';
