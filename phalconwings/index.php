@@ -185,6 +185,7 @@ class PhalconWings
             $code  .= 'use Phalcon\Validation\Validator\PresenceOf;'."\r\n";
             $code  .= 'use Phalcon\Validation\Validator\StringLength;'."\r\n";
             $code  .= 'use Phalcon\Validation\Validator\Numericality;'."\r\n";
+            $code  .= 'use Phalcon\Validation\Validator\Date as DateValidator;'."\r\n";
             $code  .= "class {$model} extends Model\r\n";
             $code  .= '{'."\r\n";
 
@@ -198,19 +199,57 @@ class PhalconWings
 
             foreach($info['fields'] as $fieldname => $field){
 
-                $type = '';
-                if( preg_match('/int$/i', $field['type']) ){
-                    $type = 'integer';
-                }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
-                    $type = 'string';
-                }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
-                    $type = 'float';
+                $isAutoincrement  = ($field['extra'] == 'auto_increment');
+                $isRequired       = is_null($field['default']) && !$isAutoincrement;
+
+                if( $isRequired ){
+                    $rules .= '        $validator->add(\''.$fieldname.'\', new PresenceOf(['."\r\n";
+                    $rules .= '            \'message\' => \''.$field['comment'].' can\\\'t empty!\''."\r\n";
+                    $rules .= '        ]));'."\r\n";
                 }
 
-                if( is_null($field['default']) && !in_array($fieldname, $info['pk']) ){
-                    $rules .= '        $validator->add(\''.$fieldname.'\', new PresenceOf(['."\r\n";
-                    $rules .= '            \'message\' => \''.$field['comment'].'不能为空\''."\r\n";
-                    $rules .= '        ]));'."\r\n";
+                $type = '';
+                if( preg_match('/int$/i', $field['type']) ){
+                    $type   = 'integer';
+                    if( $isRequired ){
+                        $rules .= '        $validator->add(\''.$fieldname.'\', new Numericality(['."\r\n";
+                        $rules .= '            \'message\' => \''.$field['comment'].' must be a number!\''."\r\n";
+                        $rules .= '        ]));'."\r\n";
+                    }
+
+                }elseif( preg_match('/(text|char|datetime|date)$/i', $field['type']) ){
+
+                    $type   = 'string';
+                    if( $isRequired ){
+                        if($field['type'] == 'date'){
+                            $rules .= '        $validator->add(\''.$fieldname.'\', new DateValidator(['."\r\n";
+                            $rules .= '            \'format\' => \'Y-m-d\','."\r\n";
+                            $rules .= '            \'message\' => \''.$field['comment'].' invalid!\''."\r\n";
+                            $rules .= '        ]));'."\r\n";
+                        }elseif($field['type'] == 'datetime'){
+                            $rules .= '        $validator->add(\''.$fieldname.'\', new DateValidator(['."\r\n";
+                            $rules .= '            \'format\' => \'Y-m-d H:i:s\','."\r\n";
+                            $rules .= '            \'message\' => \''.$field['comment'].' invalid!\''."\r\n";
+                            $rules .= '        ]));'."\r\n";
+                        }else{
+
+                            $length = (int)$field['length'];
+                            if( $length > 0 ) {
+                                $rules .= '        $validator->add(\''.$fieldname.'\', new StringLength(['."\r\n";
+                                $rules .= '            \'min\' => 1, \'max\' => '.$length.','."\r\n";
+                                $rules .= '            \'messageMinimum\' => \''.$field['comment'].' too short!\','."\r\n";
+                                $rules .= '            \'messageMaximum\' => \''.$field['comment'].' too long!\''."\r\n";
+                                $rules .= '        ]));'."\r\n";
+                            }
+                        }
+                    }
+                }elseif( in_array($field['type'], ['float', 'real', 'decimal']) ){
+                    $type   = 'float';
+                    if( $isRequired ){
+                        $rules .= '        $validator->add(\''.$fieldname.'\', new Numericality(['."\r\n";
+                        $rules .= '            \'message\' => \''.$field['comment'].' must be a number!\''."\r\n";
+                        $rules .= '        ]));'."\r\n";
+                    }
                 }
 
                 $vars[] = '    /**';
