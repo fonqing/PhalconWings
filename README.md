@@ -9,16 +9,11 @@
 
 ### Features (特点)
 
-1. 生成的控制器具备列表、新增、编辑和删除的具体逻辑代码，而不只是一个空的架子。
-2. 生成的模型代码自动添加模型属性和set、get方法，并且能够根据数据表的外键定义生成简单的模型关系。
-3. 生成的视图代码包含了新增、编辑和列表的具体HTML，以及自动的提交逻辑。
+1. 生成的控制器具备列表、新增、编辑和删除的具体逻辑代码，而不只是一个空的架子。(Generate the Controller with the list, add, edit and delete logic code, not just an empty frame.)
+2. 生成的模型代码自动添加模型属性和set、get方法，并且能够根据数据表的外键定义生成简单的模型关系。(The generated Model code automatically add model attributes and set, get methods, and can be based on the foreign key definition of the data table to generate model relationships.)
+3. 生成的视图代码包含了新增、编辑和列表的具体HTML，以及自动的提交逻辑。(The generated View code contains new, edit and list specific HTML and submit logic.)
 
-1. Generate the Controller with the list, add, edit and delete logic code, not just an empty frame.
-2. The generated Model code automatically add model attributes and set, get methods, and can be based on the foreign key definition of the data table to generate model relationships.
-3. The generated View code contains new, edit and list specific HTML and submit login.
-
-  总之，对于一些非常简单的模型，只要生成完毕即可使用。对于其他的情况，只要修改部分逻辑就可以了。
-  In short, for some very simple model, as long as the generated finished can be used. For other cases, just modify some of the logic on it.
+总之，对于一些非常简单的模型，只要生成完毕即可使用。对于其他的情况，只要修改部分逻辑就可以了。(In short, for some very simple model, as long as the generated finished can be used. For other cases, just modify some of the logic on it.)
 
 ### Requirements（开发环境）
 * Phalcon >= 3.0.4
