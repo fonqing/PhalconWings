@@ -54,19 +54,17 @@ class PhalconWings
      *
      * @access public
      * @param array $config
-     * @return boolean
+     * @throws Exception
      */
     public function __construct(array $config)
     {
         if(empty($config)){
             throw new \Exception('Configuration can\'t empty');
-            return false;
         }
         $this->config = $config;
         foreach((array) $config['dir'] as $name => $dir){
             if( 0 == $this->isWriteable($dir) ){
                 throw new \Exception("Directory “{$name}” write permission required");
-                return false;
             }
         }
         $this->initConnection();
@@ -113,7 +111,6 @@ class PhalconWings
     {
         if(!$this->connection->tableExists($table)){
             throw new \Exception("Table {$table} not exists!");
-            return false;
         }
         $this->table = $table;
         $infos       = $this->getTableInfo($table);
@@ -127,6 +124,10 @@ class PhalconWings
         return true;
     }
 
+    /**
+     * @param $table
+     * @return array
+     */
     private function getTableInfo($table)
     {
         $fields      = [];
