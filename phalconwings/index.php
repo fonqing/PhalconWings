@@ -124,10 +124,6 @@ class PhalconWings
         return true;
     }
 
-    /**
-     * @param $table
-     * @return array
-     */
     private function getTableInfo($table)
     {
         $fields      = [];
@@ -754,8 +750,8 @@ class PhalconWings
 
                 $types[]='PRI';
 
-            }elseif(count($columns)==1 && 
-                $columns[0] == $field && 
+            }elseif(count($columns)==1 &&
+                $columns[0] == $field &&
                 $type == 'UNIQUE' ){
 
                 $types[]='UNI';
@@ -788,7 +784,7 @@ class PhalconWings
     }
 
     /**
-     * Camlize a string
+     * Camelize a string
      *
      * @access private
      * @param string $str
@@ -809,8 +805,8 @@ class PhalconWings
  */
 
 $action  = isset($_GET['action']) ? $_GET['action'] : '';
-$table   = preg_replace('/[^a-z0-9_]+/i', '', isset($_GET['table']) ? $_GET['table'] : '' );
-$mname   = isset($_GET['mname']) ? $_GET['mname'] : 'Something';
+$table   = preg_replace('/[^a-z0-9_]+/i', '', isset($_GET['table']) ? trim($_GET['table']) : '' );
+$mname   = isset($_GET['mname']) ? htmlspecialchars(trim($_GET['mname'])) : 'Something';
 $message = '';
 
 try{
